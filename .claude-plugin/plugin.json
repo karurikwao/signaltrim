@@ -1,0 +1,34 @@
+{
+  "name": "signaltrim",
+  "description": "Ultra-compressed communication mode. Cuts 65% of output tokens (measured) with compact technical prose while preserving accuracy.",
+  "author": {
+    "name": "SignalTrim contributors",
+    "url": "https://github.com/signaltrim"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/src/hooks/signaltrim-activate.js\"",
+            "timeout": 5,
+            "statusMessage": "Loading signaltrim mode..."
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/src/hooks/signaltrim-mode-tracker.js\"",
+            "timeout": 5,
+            "statusMessage": "Tracking signaltrim mode..."
+          }
+        ]
+      }
+    ]
+  }
+}

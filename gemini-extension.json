@@ -1,0 +1,6 @@
+{
+  "name": "signaltrim",
+  "description": "Ultra-compressed communication mode. Cuts 65% of output tokens (measured) with compact technical prose while preserving accuracy.",
+  "version": "1.0.1",
+  "contextFileName": "GEMINI.md"
+}

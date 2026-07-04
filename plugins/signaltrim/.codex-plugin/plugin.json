@@ -1,0 +1,39 @@
+{
+  "name": "signaltrim",
+  "version": "0.1.0",
+  "description": "Ultra-compressed communication mode. Cut filler. Keep technical accuracy.",
+  "author": {
+    "name": "SignalTrim contributors",
+    "url": "https://github.com/signaltrim"
+  },
+  "homepage": "https://github.com/karurikwao/signaltrim",
+  "repository": "https://github.com/karurikwao/signaltrim",
+  "license": "MIT",
+  "keywords": [
+    "productivity",
+    "communication",
+    "brevity",
+    "writing"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "SignalTrim",
+    "shortDescription": "Cut filler. Keep technical accuracy.",
+    "longDescription": "Ultra-compressed communication mode for Codex. Use fewer words. Keep exact technical substance.",
+    "developerName": "SignalTrim contributors",
+    "category": "Productivity",
+    "capabilities": [
+      "Write"
+    ],
+    "websiteURL": "https://github.com/karurikwao/signaltrim",
+    "privacyPolicyURL": "https://github.com/karurikwao/signaltrim/blob/main/README.md",
+    "termsOfServiceURL": "https://github.com/karurikwao/signaltrim/blob/main/LICENSE",
+    "defaultPrompt": [
+      "Use signaltrim mode. Cut filler. Keep technical accuracy."
+    ],
+    "composerIcon": "./assets/signaltrim-small.svg",
+    "logo": "./assets/signaltrim.svg",
+    "screenshots": [],
+    "brandColor": "#191817"
+  }
+}

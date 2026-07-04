@@ -1,0 +1,8 @@
+{
+  "name": "signaltrim-opencode-plugin",
+  "version": "0.1.0",
+  "description": "signaltrim plugin for opencode — terse mode tracking + slash commands",
+  "type": "module",
+  "main": "plugin.js",
+  "private": true
+}

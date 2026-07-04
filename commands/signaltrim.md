@@ -1,0 +1,6 @@
+---
+description: Switch signaltrim intensity level (lite/full/ultra/wenyan)
+argument-hint: "[lite|full|ultra|wenyan]"
+---
+
+Switch to signaltrim $ARGUMENTS mode. If no level specified, use full. SignalTrim compact mode active — drop articles, filler, pleasantries. Fragments OK. Technical terms exact. Code unchanged. Pattern: [thing] [action] [reason]. [next step].

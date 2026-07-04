@@ -1,0 +1,35 @@
+{
+  "name": "signaltrim",
+  "version": "0.1.0",
+  "description": "SignalTrim installer detects AI coding agents and installs compact technical reply mode for each one.",
+  "license": "MIT",
+  "author": "SignalTrim contributors",
+  "homepage": "https://github.com/karurikwao/signaltrim",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/karurikwao/signaltrim.git"
+  },
+  "bugs": {
+    "url": "https://github.com/karurikwao/signaltrim/issues"
+  },
+  "bin": {
+    "signaltrim": "./bin/install.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test tests/installer/*.test.mjs"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "agents/",
+    "skills/",
+    "plugins/",
+    "commands/",
+    "dist/signaltrim.skill",
+    "README.md",
+    "LICENSE"
+  ]
+}

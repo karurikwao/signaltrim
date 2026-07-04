@@ -1,0 +1,70 @@
+name: Sync SKILL.md and rules
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - skills/signaltrim/SKILL.md
+      - skills/signalteam/SKILL.md
+      - agents/signalteam-*.md
+      - skills/signaltrim-compress/SKILL.md
+      - skills/signaltrim-compress/scripts/**
+
+concurrency:
+  group: sync-skill
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Pull latest before making changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
+
+      - name: Sync SKILL.md copies
+        run: |
+          cp skills/signaltrim/SKILL.md plugins/signaltrim/skills/signaltrim/SKILL.md
+
+      - name: Sync signaltrim-compress skill to plugin
+        run: |
+          # Plugin distribution mirrors source verbatim — no rename, no sed.
+          mkdir -p plugins/signaltrim/skills/signaltrim-compress
+          cp skills/signaltrim-compress/SKILL.md plugins/signaltrim/skills/signaltrim-compress/SKILL.md
+          rm -rf plugins/signaltrim/skills/signaltrim-compress/scripts
+          cp -r skills/signaltrim-compress/scripts plugins/signaltrim/skills/signaltrim-compress/scripts
+          rm -rf plugins/signaltrim/skills/signaltrim-compress/scripts/__pycache__
+
+      - name: Sync signalteam skill + agents to plugin
+        run: |
+          mkdir -p plugins/signaltrim/skills/signalteam plugins/signaltrim/agents
+          cp skills/signalteam/SKILL.md plugins/signaltrim/skills/signalteam/SKILL.md
+          cp agents/signalteam-investigator.md plugins/signaltrim/agents/signalteam-investigator.md
+          cp agents/signalteam-builder.md plugins/signaltrim/agents/signalteam-builder.md
+          cp agents/signalteam-reviewer.md plugins/signaltrim/agents/signalteam-reviewer.md
+
+      - name: Rebuild signaltrim.skill ZIP
+        run: mkdir -p dist && cd skills && zip -r ../dist/signaltrim.skill signaltrim/
+
+      - name: Commit and push if changed
+        run: |
+          git add \
+            skills/signaltrim-compress/ \
+            plugins/signaltrim/skills/signaltrim-compress/ \
+            plugins/signaltrim/skills/signaltrim/SKILL.md \
+            plugins/signaltrim/skills/signalteam/SKILL.md \
+            plugins/signaltrim/agents/signalteam-investigator.md \
+            plugins/signaltrim/agents/signalteam-builder.md \
+            plugins/signaltrim/agents/signalteam-reviewer.md \
+            dist/signaltrim.skill
+          git diff --staged --quiet && exit 0
+          git commit -m "chore: sync SKILL.md copies [skip ci]"
+          git push

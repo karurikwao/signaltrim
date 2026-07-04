@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "signaltrim",
+  "description": "Ultra-compressed communication mode for Claude Code. Cuts 65% of output tokens (measured) while keeping full technical accuracy.",
+  "owner": {
+    "name": "SignalTrim contributors",
+    "url": "https://github.com/signaltrim"
+  },
+  "plugins": [
+    {
+      "name": "signaltrim",
+      "description": "Cut filler from Claude Code replies while preserving technical substance.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}

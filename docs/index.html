@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SignalTrim | Proof-first token discipline for AI agents</title>
+<meta name="description" content="SignalTrim makes AI coding agents answer shorter without losing technical substance. Install across Claude Code, Codex, Gemini, Cursor, and more.">
+<link rel="canonical" href="https://signaltrim.pages.dev/">
+<style>
+:root {
+  color-scheme: light;
+  --paper: #f7f8f3;
+  --paper-strong: #ffffff;
+  --ink: #191817;
+  --muted: #5f635d;
+  --soft: #dde2d6;
+  --line: #c8d0c2;
+  --green: #2f7d5b;
+  --red: #d94c2b;
+  --blue: #3867d6;
+  --gold: #bd8b13;
+  --violet: #6d55c9;
+  --code: #101412;
+  --code-text: #e9f2e7;
+  --shadow: 0 18px 60px rgba(25, 24, 23, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background:
+    linear-gradient(90deg, rgba(25, 24, 23, 0.04) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(rgba(25, 24, 23, 0.035) 1px, transparent 1px) 0 0 / 48px 48px,
+    var(--paper);
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: 0;
+  line-height: 1.5;
+  min-width: 320px;
+}
+
+body::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.shell {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.skip-link {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 50;
+  transform: translateY(-160%);
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(247, 248, 243, 0.9);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(16px);
+}
+
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 68px;
+  gap: 20px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.brand img {
+  width: 34px;
+  height: 34px;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.nav a,
+.nav button {
+  min-height: 38px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 0.92rem;
+}
+
+.nav a:hover,
+.nav button:hover {
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+.nav a:focus-visible,
+.nav button:focus-visible {
+  color: var(--ink);
+  border-color: var(--line);
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.hero {
+  position: relative;
+  min-height: 82vh;
+  padding: 82px 0 54px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(247, 248, 243, 0.96), rgba(247, 248, 243, 0.72) 52%, rgba(247, 248, 243, 0.92)),
+    url("assets/signaltrim-logo-banner.svg") right 8% center / min(620px, 58vw) auto no-repeat;
+  opacity: 0.95;
+}
+
+.hero-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.74fr);
+  gap: 42px;
+  align-items: end;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin: 0 0 24px;
+  color: var(--green);
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.eyebrow::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 99px;
+  background: var(--green);
+  box-shadow: 0 0 0 6px rgba(47, 125, 91, 0.14);
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  max-width: 800px;
+  margin-bottom: 24px;
+  font-size: 5.4rem;
+  line-height: 0.98;
+  font-weight: 900;
+}
+
+.hero-copy {
+  max-width: 690px;
+  color: var(--muted);
+  font-size: 1.28rem;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 34px;
+}
+
+.launch-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 22px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-size: 0.94rem;
+  font-weight: 800;
+}
+
+.launch-links a {
+  color: var(--blue);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.launch-links a:nth-of-type(2) {
+  color: var(--green);
+}
+
+.launch-links a:nth-of-type(3) {
+  color: var(--ink);
+}
+
+.launch-links span {
+  color: var(--line);
+}
+
+.button {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  border-radius: 8px;
+  padding: 12px 18px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.button.secondary {
+  background: rgba(255, 255, 255, 0.62);
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+.button:hover {
+  transform: translateY(-1px);
+}
+
+.button:focus-visible {
+  transform: translateY(-1px);
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.metric-strip {
+  position: relative;
+  margin: 48px 0 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow: var(--shadow);
+}
+
+.metric {
+  min-height: 112px;
+  padding: 18px;
+  border-right: 1px solid var(--line);
+}
+
+.metric:last-child {
+  border-right: 0;
+}
+
+.metric strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 1.65rem;
+  line-height: 1;
+}
+
+.metric dt,
+.metric dd {
+  margin: 0;
+}
+
+.metric dd {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.console {
+  position: relative;
+  background: var(--code);
+  color: var(--code-text);
+  border-radius: 10px;
+  border: 1px solid #24322c;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.console-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  padding: 0 14px 0 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.console-title {
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  color: #a6b9ad;
+  font-size: 0.82rem;
+}
+
+.status-pill {
+  color: #c8ffd9;
+  background: rgba(47, 125, 91, 0.25);
+  border: 1px solid rgba(111, 230, 152, 0.25);
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.console-body {
+  padding: 18px;
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.segmented button,
+.agent-grid button,
+.mode-tabs button {
+  min-height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  border-radius: 7px;
+  font-weight: 800;
+}
+
+.segmented button[aria-pressed="true"],
+.agent-grid button[aria-pressed="true"],
+.mode-tabs button[aria-pressed="true"] {
+  background: var(--green);
+  color: #ffffff;
+  border-color: var(--green);
+}
+
+.command-line {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 58px;
+  padding: 12px;
+  background: #070908;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+}
+
+.prompt {
+  color: #83d6a6;
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+}
+
+.command-line code {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: #ffffff;
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-size: 0.92rem;
+}
+
+.copy-btn {
+  min-width: 76px;
+  min-height: 38px;
+  border: 0;
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.console-note {
+  margin: 14px 0 0;
+  color: #a6b9ad;
+  font-size: 0.9rem;
+}
+
+.band {
+  border-bottom: 1px solid var(--line);
+  padding: 72px 0;
+}
+
+.band.alt {
+  background: rgba(255, 255, 255, 0.52);
+}
+
+.section-head {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(280px, 0.6fr);
+  gap: 28px;
+  align-items: end;
+  margin-bottom: 34px;
+}
+
+.section-head h2 {
+  margin-bottom: 0;
+  font-size: 2.7rem;
+  line-height: 1.08;
+}
+
+.section-head p {
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+.radar {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: 1px solid var(--line);
+  background: var(--paper-strong);
+}
+
+.radar-item {
+  min-height: 250px;
+  padding: 22px;
+  border-right: 1px solid var(--line);
+}
+
+.radar-item:last-child {
+  border-right: 0;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  margin-bottom: 22px;
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  color: var(--ink);
+}
+
+.tag.green { background: rgba(47, 125, 91, 0.14); }
+.tag.red { background: rgba(217, 76, 43, 0.14); }
+.tag.blue { background: rgba(56, 103, 214, 0.14); }
+.tag.gold { background: rgba(189, 139, 19, 0.18); }
+.tag.violet { background: rgba(109, 85, 201, 0.14); }
+.contract .tag { color: var(--paper); }
+
+.radar-item h3 {
+  margin-bottom: 12px;
+  font-size: 1.2rem;
+}
+
+.radar-item p {
+  margin-bottom: 18px;
+  color: var(--muted);
+  font-size: 0.96rem;
+}
+
+.radar-item a {
+  color: var(--ink);
+  font-weight: 800;
+  text-decoration-color: var(--line);
+  text-underline-offset: 4px;
+}
+
+.lab {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.72fr) minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.demo-media {
+  margin: 30px 0 0;
+  border: 1px solid var(--line);
+  background: var(--paper-strong);
+  padding: 12px;
+}
+
+.demo-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.lab-panel {
+  border: 1px solid var(--line);
+  background: var(--paper-strong);
+}
+
+.lab-panel h3 {
+  margin: 0;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--line);
+  font-size: 1rem;
+}
+
+.lab-body {
+  padding: 20px;
+}
+
+.mode-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.mode-tabs button {
+  color: var(--ink);
+  border-color: var(--line);
+  background: var(--paper);
+}
+
+.example-box {
+  min-height: 190px;
+  border: 1px solid var(--line);
+  padding: 18px;
+  background: #fbfcf7;
+}
+
+.example-label {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.example-output {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.18rem;
+}
+
+.slider-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.slider-row input[type="range"] {
+  width: 100%;
+  accent-color: var(--green);
+}
+
+.token-readout {
+  min-width: 112px;
+  text-align: right;
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-weight: 900;
+}
+
+.bars {
+  display: grid;
+  gap: 14px;
+}
+
+.bar-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.bar-track {
+  height: 12px;
+  background: var(--soft);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  width: 50%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--green);
+}
+
+.bar-fill.red {
+  background: var(--red);
+}
+
+.contract {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid var(--line);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.contract-item {
+  min-height: 230px;
+  padding: 24px;
+  border-right: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.contract-item:last-child {
+  border-right: 0;
+}
+
+.contract-item p {
+  color: #c8d0c2;
+}
+
+.install-router {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.72fr) minmax(0, 1fr);
+  gap: 28px;
+}
+
+.agent-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.agent-grid button {
+  color: var(--ink);
+  border-color: var(--line);
+  background: var(--paper-strong);
+}
+
+.route-output {
+  border: 1px solid var(--line);
+  background: var(--paper-strong);
+  min-height: 264px;
+  padding: 24px;
+}
+
+.route-output h3 {
+  margin-bottom: 14px;
+}
+
+.route-command {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  margin-top: 18px;
+  background: var(--code);
+  color: var(--code-text);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.route-command code {
+  overflow-wrap: anywhere;
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-size: 0.9rem;
+}
+
+.mini-list {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mini-list li {
+  display: flex;
+  gap: 10px;
+  color: var(--muted);
+}
+
+.mini-list li::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  margin-top: 8px;
+  border-radius: 99px;
+  background: var(--green);
+  flex: 0 0 auto;
+}
+
+.footer {
+  padding: 34px 0 46px;
+  color: var(--muted);
+}
+
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.footer a {
+  font-weight: 800;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 980px) {
+  h1 {
+    font-size: 4rem;
+  }
+
+  .hero-grid,
+  .section-head,
+  .lab,
+  .install-router {
+    grid-template-columns: 1fr;
+  }
+
+  .hero::before {
+    background:
+      linear-gradient(rgba(247, 248, 243, 0.92), rgba(247, 248, 243, 0.9)),
+      url("assets/signaltrim-logo-banner.svg") right 4% top 28px / 420px auto no-repeat;
+  }
+
+  .metric-strip,
+  .radar,
+  .contract {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .metric:nth-child(2),
+  .radar-item:nth-child(2),
+  .contract-item:nth-child(2) {
+    border-right: 0;
+  }
+
+  .metric:nth-child(-n + 2),
+  .radar-item:nth-child(-n + 2),
+  .contract-item:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .contract-item:nth-child(-n + 2) {
+    border-bottom-color: rgba(255, 255, 255, 0.18);
+  }
+}
+
+@media (max-width: 680px) {
+  .shell {
+    width: min(100% - 28px, 1180px);
+  }
+
+  .topbar {
+    position: static;
+  }
+
+  .topbar-inner {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 14px 0;
+  }
+
+  .nav {
+    justify-content: flex-start;
+  }
+
+  .hero {
+    min-height: auto;
+    padding: 58px 0 36px;
+  }
+
+  .hero::before {
+    background:
+      linear-gradient(rgba(247, 248, 243, 0.92), rgba(247, 248, 243, 0.9)),
+      url("assets/signaltrim-mark.svg") right 18px top 26px / 118px auto no-repeat;
+  }
+
+  h1 {
+    font-size: 3rem;
+  }
+
+  .hero-copy {
+    font-size: 1.08rem;
+  }
+
+  .metric-strip,
+  .radar,
+  .contract,
+  .mode-tabs,
+  .agent-grid,
+  .segmented {
+    grid-template-columns: 1fr;
+  }
+
+  .metric,
+  .radar-item,
+  .contract-item {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .contract-item {
+    border-bottom-color: rgba(255, 255, 255, 0.18);
+  }
+
+  .metric:last-child,
+  .radar-item:last-child,
+  .contract-item:last-child {
+    border-bottom: 0;
+  }
+
+  .command-line,
+  .route-command {
+    grid-template-columns: 1fr;
+  }
+
+  .copy-btn {
+    width: 100%;
+  }
+
+  .section-head h2 {
+    font-size: 2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .button:hover,
+  .button:focus-visible {
+    transform: none !important;
+  }
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="shell topbar-inner">
+    <a class="brand" href="https://github.com/karurikwao/signaltrim" target="_blank" rel="noreferrer">
+      <img src="assets/signaltrim-mark.svg" alt="">
+      <span>SignalTrim</span>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#proof">Proof</a>
+      <a href="#safety">Safety</a>
+      <a href="#install">Install</a>
+      <a href="https://github.com/karurikwao/signaltrim" target="_blank" rel="noreferrer">GitHub</a>
+      <button type="button" data-copy="npx skills add karurikwao/signaltrim" data-copy-label="Copy install command">Copy install</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <div class="shell hero-grid">
+      <div>
+        <p class="eyebrow">Output discipline for coding agents</p>
+        <h1>SignalTrim</h1>
+        <p class="hero-copy">Make AI coding agents answer shorter without losing the fix. It is a local skill, installer, hook system, compression tool, and proof loop for people who want signal instead of ceremony.</p>
+        <div class="hero-actions">
+          <a class="button" href="#install">Install route</a>
+          <a class="button secondary" href="#proof">See proof</a>
+        </div>
+        <div class="launch-links" aria-label="Published links">
+          <a href="https://signaltrim.pages.dev/#proof">Live demo</a>
+          <span>|</span>
+          <a href="https://signaltrim.pages.dev/">Launch page</a>
+          <span>|</span>
+          <a href="https://github.com/karurikwao/signaltrim" target="_blank" rel="noreferrer">GitHub repo</a>
+        </div>
+        <dl class="metric-strip" aria-label="Repository signals">
+          <div class="metric">
+            <dt><strong>50k+</strong></dt>
+            <dd>launch target: useful enough to earn attention</dd>
+          </div>
+          <div class="metric">
+            <dt><strong>65%</strong></dt>
+            <dd>average output reduction in committed benchmarks</dd>
+          </div>
+          <div class="metric">
+            <dt><strong>40+</strong></dt>
+            <dd>agent targets through plugin, extension, and skills paths</dd>
+          </div>
+          <div class="metric">
+            <dt><strong>0</strong></dt>
+            <dd>telemetry, accounts, or signaltrim backend</dd>
+          </div>
+        </dl>
+      </div>
+
+      <aside class="console" aria-label="Install console">
+        <div class="console-head">
+          <span class="console-title">install-router</span>
+          <span class="status-pill">ready</span>
+        </div>
+        <div class="console-body">
+          <div class="segmented" role="group" aria-label="Install command selector">
+            <button type="button" data-install="unix" aria-pressed="true">macOS/Linux</button>
+            <button type="button" data-install="windows" aria-pressed="false">Windows</button>
+          </div>
+          <div class="command-line">
+            <span class="prompt">$</span>
+            <code id="heroCommand">curl -fsSL https://raw.githubusercontent.com/karurikwao/signaltrim/main/install.sh | bash</code>
+            <button class="copy-btn" type="button" data-copy-target="heroCommand">Copy</button>
+          </div>
+          <p class="console-note">Need one specific agent? Use the router below. Need proof? Run benchmarks, evals, or `/signaltrim-stats`.</p>
+          <p class="console-note" id="copyStatus" aria-live="polite"></p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="band alt" id="radar">
+    <div class="shell">
+      <div class="section-head">
+        <h2>Issue radar, turned into product direction.</h2>
+        <p>The open queue says what the market cares about: install must work, safety must be boring, numbers must be honest, and agent coverage must feel native instead of bolted on.</p>
+      </div>
+      <div class="radar">
+        <article class="radar-item">
+          <span class="tag red">Fix first</span>
+          <h3>Install confidence</h3>
+          <p>Windows piping, malformed settings, and plugin path drift are the sharpest trust killers. One failed install costs more than one missing mode.</p>
+          <a href="https://github.com/karurikwao/signaltrim/issues/546" target="_blank" rel="noreferrer">Windows install thread</a>
+        </article>
+        <article class="radar-item">
+          <span class="tag blue">Safety</span>
+          <h3>Validated writes</h3>
+          <p>Compression is powerful because it rewrites memory. That means backup location, validation, and atomic replace need to be explicit.</p>
+          <a href="https://github.com/karurikwao/signaltrim/issues/544" target="_blank" rel="noreferrer">Compression safety issue</a>
+        </article>
+        <article class="radar-item">
+          <span class="tag gold">Proof</span>
+          <h3>Honest numbers</h3>
+          <p>The most credible claim is not "always cheaper." It is "shorter output, faster reading, measurable tradeoffs." That is stronger.</p>
+          <a href="HONEST-NUMBERS.md">Read honest numbers</a>
+        </article>
+        <article class="radar-item">
+          <span class="tag violet">Native feel</span>
+          <h3>Agent coverage</h3>
+          <p>The repo wins when Claude, Codex, Gemini, Cursor, opencode, and niche agents each get a path that respects their real install model.</p>
+          <a href="https://github.com/karurikwao/signaltrim/blob/main/INSTALL.md" target="_blank" rel="noreferrer">Install matrix</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="proof">
+    <div class="shell">
+      <div class="section-head">
+        <h2>Proof lab, not just a slogan.</h2>
+        <p>Use the mode preview and rough token model to understand what SignalTrim changes. This does not hide the overhead: output shrinks, input rules still cost context.</p>
+      </div>
+      <div class="lab">
+        <section class="lab-panel" aria-labelledby="modeTitle">
+          <h3 id="modeTitle">Mode preview</h3>
+          <div class="lab-body">
+            <div class="mode-tabs" role="group" aria-label="Mode selector">
+              <button type="button" data-mode="lite" aria-pressed="false">lite</button>
+              <button type="button" data-mode="full" aria-pressed="true">full</button>
+              <button type="button" data-mode="ultra" aria-pressed="false">ultra</button>
+              <button type="button" data-mode="wenyan" aria-pressed="false">wenyan</button>
+            </div>
+            <div class="example-box">
+              <span class="example-label">Output</span>
+              <p class="example-output" id="modeOutput">New object ref each render. Inline object prop = new ref = re-render. Wrap in `useMemo`.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="lab-panel" aria-labelledby="tokenTitle">
+          <h3 id="tokenTitle">Output model</h3>
+          <div class="lab-body">
+            <label class="slider-row">
+              <span class="visually-hidden">Normal output tokens</span>
+              <input id="tokenSlider" type="range" min="150" max="3500" step="50" value="1200">
+              <span class="token-readout"><span id="normalTokens">1200</span> tok</span>
+            </label>
+            <div class="bars" id="tokenBars" role="img" aria-label="Normal 1200 tokens; SignalTrim estimate 420 tokens">
+              <div>
+                <div class="bar-label"><span>Normal output</span><strong id="normalLabel">1200</strong></div>
+                <div class="bar-track"><div class="bar-fill red" id="normalBar" style="width:100%"></div></div>
+              </div>
+              <div>
+                <div class="bar-label"><span>SignalTrim output estimate</span><strong id="signaltrimLabel">420</strong></div>
+                <div class="bar-track"><div class="bar-fill" id="signaltrimBar" style="width:35%"></div></div>
+              </div>
+            </div>
+            <ul class="mini-list">
+              <li>Output savings use the public benchmark average.</li>
+              <li>Whole-session savings depend on prompt size and provider billing.</li>
+              <li>Use `/signaltrim-stats` or your provider usage page for real receipts.</li>
+            </ul>
+          </div>
+        </section>
+      </div>
+      <figure class="demo-media">
+        <img src="assets/signaltrim-demo.gif" alt="Animated SignalTrim demo showing launch links, shorter technical output, install routing, and proof metrics">
+      </figure>
+    </div>
+  </section>
+
+  <section class="band alt" id="safety">
+    <div class="shell">
+      <div class="section-head">
+        <h2>Safety contract.</h2>
+        <p>Fast adoption comes from a funny hook. Long adoption comes from boring guarantees.</p>
+      </div>
+      <div class="contract">
+        <article class="contract-item">
+          <span class="tag green">Core mode</span>
+          <h3>No signaltrim backend</h3>
+          <p>The core skill, hooks, statusline, and stats are local. No analytics, no account, no background telemetry.</p>
+        </article>
+        <article class="contract-item">
+          <span class="tag gold">Compress</span>
+          <h3>Explicit model call</h3>
+          <p>`/signaltrim-compress` is opt-in and sends only the file you name to Claude/Anthropic. Sensitive filenames and private-key paths are refused.</p>
+        </article>
+        <article class="contract-item">
+          <span class="tag blue">Writes</span>
+          <h3>Validate before replace</h3>
+          <p>Compression writes a temp candidate, validates structure, saves a backup, then atomically swaps only after the candidate passes.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="install">
+    <div class="shell">
+      <div class="section-head">
+        <h2>Install route, based on your agent.</h2>
+        <p>Pick a target and copy the command. The full matrix lives in the GitHub README set; this page keeps the common paths fast.</p>
+      </div>
+      <div class="install-router">
+        <div class="agent-grid" role="group" aria-label="Agent install selector">
+          <button type="button" data-agent="claude" aria-pressed="true">Claude Code</button>
+          <button type="button" data-agent="codex" aria-pressed="false">Codex</button>
+          <button type="button" data-agent="gemini" aria-pressed="false">Gemini CLI</button>
+          <button type="button" data-agent="cursor" aria-pressed="false">Cursor</button>
+          <button type="button" data-agent="opencode" aria-pressed="false">opencode</button>
+          <button type="button" data-agent="all" aria-pressed="false">Auto detect</button>
+        </div>
+        <section class="route-output" aria-live="polite">
+          <span class="tag green" id="routeTag">Plugin path</span>
+          <h3 id="routeTitle">Claude Code</h3>
+          <p id="routeCopy">Best path for Claude Code users: install the plugin, hooks, skills, and statusline support through the official plugin flow.</p>
+          <div class="route-command">
+            <code id="routeCommand">claude plugin marketplace add karurikwao/signaltrim &amp;&amp; claude plugin install signaltrim@signaltrim</code>
+            <button class="copy-btn" type="button" data-copy-target="routeCommand">Copy</button>
+          </div>
+          <ul class="mini-list" id="routeNotes">
+            <li>Always-on mode starts at session start.</li>
+            <li>Use `/signaltrim lite|full|ultra|wenyan` to switch intensity.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="shell footer-inner">
+    <span>MIT. Built for fewer words, clearer fixes.</span>
+    <span><a href="https://github.com/karurikwao/signaltrim#readme" target="_blank" rel="noreferrer">README</a> · <a href="https://github.com/karurikwao/signaltrim/blob/main/SECURITY.md" target="_blank" rel="noreferrer">Security</a> · <a href="https://github.com/karurikwao/signaltrim/issues" target="_blank" rel="noreferrer">Issues</a></span>
+  </div>
+</footer>
+
+<script>
+const installCommands = {
+  unix: 'curl -fsSL https://raw.githubusercontent.com/karurikwao/signaltrim/main/install.sh | bash',
+  windows: 'irm https://raw.githubusercontent.com/karurikwao/signaltrim/main/install.ps1 | iex',
+};
+
+const modeExamples = {
+  lite: 'Wrap object in `useMemo`. New ref created every render.',
+  full: 'New object ref each render. Inline object prop = new ref = re-render. Wrap in `useMemo`.',
+  ultra: 'New ref/render. `useMemo` it.',
+  wenyan: '每渲染新引用。内联对象 prop 触发重渲染。用 `useMemo` 固之。',
+};
+
+const agentRoutes = {
+  claude: {
+    tag: 'Plugin path',
+    title: 'Claude Code',
+    copy: 'Best path for Claude Code users: install the plugin, hooks, skills, and statusline support through the official plugin flow.',
+    command: 'claude plugin marketplace add karurikwao/signaltrim && claude plugin install signaltrim@signaltrim',
+    notes: ['Always-on mode starts at session start.', 'Use `/signaltrim lite|full|ultra|wenyan` to switch intensity.'],
+  },
+  codex: {
+    tag: 'Skills path',
+    title: 'Codex',
+    copy: 'Use the skills installer for Codex. On Windows, manual activation may be needed when hooks are disabled.',
+    command: 'npx skills add karurikwao/signaltrim -a codex',
+    notes: ['Works through the shared skill profile.', 'Run `$signaltrim` or `/signaltrim` when manual activation is needed.'],
+  },
+  gemini: {
+    tag: 'Extension path',
+    title: 'Gemini CLI',
+    copy: 'Install as a Gemini extension so the context file loads with your sessions.',
+    command: 'gemini extensions install https://github.com/karurikwao/signaltrim',
+    notes: ['GEMINI.md carries the activation context.', 'Re-run install after pulling major updates.'],
+  },
+  cursor: {
+    tag: 'IDE path',
+    title: 'Cursor',
+    copy: 'Use the skills profile for Cursor. Add per-repo rules with the installer when you want always-on behavior in a project.',
+    command: 'npx skills add karurikwao/signaltrim -a cursor',
+    notes: ['Pairs well with `npx signaltrim --with-init` inside a repo.', 'Use the IDE skill manager to remove skills.'],
+  },
+  opencode: {
+    tag: 'Native plugin',
+    title: 'opencode',
+    copy: 'Use the native opencode integration from the unified installer for plugin, commands, skills, and agents.',
+    command: 'npx -y github:karurikwao/signaltrim -- --only opencode',
+    notes: ['Writes opencode plugin files into the config directory.', 'No statusline because opencode does not expose one.'],
+  },
+  all: {
+    tag: 'Auto detect',
+    title: 'Auto detect',
+    copy: 'Let the installer find supported agents on your machine and wire the best known path for each one.',
+    command: 'npx -y github:karurikwao/signaltrim',
+    notes: ['Use `--list` to see every supported provider.', 'Use `--only <agent>` when detection should be forced.'],
+  },
+};
+
+const copyStatus = document.getElementById('copyStatus');
+
+function setPressed(buttons, activeButton) {
+  buttons.forEach((button) => {
+    button.setAttribute('aria-pressed', button === activeButton ? 'true' : 'false');
+  });
+}
+
+async function copyText(text, button) {
+  try {
+    await navigator.clipboard.writeText(text);
+    if (button) {
+      if (!button.dataset.originalLabel) button.dataset.originalLabel = button.textContent;
+      if (button.dataset.copyTimer) window.clearTimeout(Number(button.dataset.copyTimer));
+      button.textContent = 'Copied';
+      button.dataset.copyTimer = String(window.setTimeout(() => {
+        button.textContent = button.dataset.originalLabel;
+        delete button.dataset.copyTimer;
+      }, 1400));
+    }
+    if (copyStatus) copyStatus.textContent = 'Copied to clipboard.';
+  } catch (error) {
+    if (copyStatus) copyStatus.textContent = `Copy failed. Select this command: ${text}`;
+  }
+}
+
+document.querySelectorAll('[data-install]').forEach((button) => {
+  button.addEventListener('click', () => {
+    setPressed(Array.from(document.querySelectorAll('[data-install]')), button);
+    document.getElementById('heroCommand').textContent = installCommands[button.dataset.install];
+  });
+});
+
+document.querySelectorAll('[data-mode]').forEach((button) => {
+  button.addEventListener('click', () => {
+    setPressed(Array.from(document.querySelectorAll('[data-mode]')), button);
+    document.getElementById('modeOutput').textContent = modeExamples[button.dataset.mode];
+  });
+});
+
+document.querySelectorAll('[data-agent]').forEach((button) => {
+  button.addEventListener('click', () => {
+    setPressed(Array.from(document.querySelectorAll('[data-agent]')), button);
+    const route = agentRoutes[button.dataset.agent];
+    document.getElementById('routeTag').textContent = route.tag;
+    document.getElementById('routeTitle').textContent = route.title;
+    document.getElementById('routeCopy').textContent = route.copy;
+    document.getElementById('routeCommand').textContent = route.command;
+    const notes = document.getElementById('routeNotes');
+    notes.replaceChildren(...route.notes.map((note) => {
+      const li = document.createElement('li');
+      li.textContent = note;
+      return li;
+    }));
+  });
+});
+
+document.querySelectorAll('[data-copy-target]').forEach((button) => {
+  button.addEventListener('click', () => {
+    const target = document.getElementById(button.dataset.copyTarget);
+    copyText(target.textContent, button);
+  });
+});
+
+document.querySelectorAll('[data-copy]').forEach((button) => {
+  button.addEventListener('click', () => copyText(button.dataset.copy, button));
+});
+
+const slider = document.getElementById('tokenSlider');
+const normalTokens = document.getElementById('normalTokens');
+const normalLabel = document.getElementById('normalLabel');
+const signaltrimLabel = document.getElementById('signaltrimLabel');
+const signaltrimBar = document.getElementById('signaltrimBar');
+const tokenBars = document.getElementById('tokenBars');
+
+function updateTokenModel() {
+  const normal = Number(slider.value);
+  const signaltrim = Math.max(1, Math.round(normal * 0.35));
+  const percent = Math.max(3, Math.round((signaltrim / normal) * 100));
+  normalTokens.textContent = String(normal);
+  normalLabel.textContent = String(normal);
+  signaltrimLabel.textContent = String(signaltrim);
+  signaltrimBar.style.width = `${percent}%`;
+  tokenBars.setAttribute('aria-label', `Normal ${normal} tokens; SignalTrim estimate ${signaltrim} tokens`);
+}
+
+slider.addEventListener('input', updateTokenModel);
+updateTokenModel();
+</script>
+</body>
+</html>

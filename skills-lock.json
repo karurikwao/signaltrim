@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "signalteam": {
+      "source": "karurikwao/signaltrim",
+      "sourceType": "github",
+      "skillPath": "skills/signalteam/SKILL.md",
+      "computedHash": "2a2b801dda8ab36ef39d789c82d045102f9883dc5213e29b597a8a27763ffbbb"
+    }
+  }
+}
