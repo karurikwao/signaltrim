@@ -79,11 +79,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 Then rerun install.
 
-More detail:
-
-```text
-docs/install-windows.md
-```
+More detail: [docs/install-windows.md](https://github.com/karurikwao/signaltrim/blob/main/docs/install-windows.md).
 
 ## Missing Node
 
@@ -145,11 +141,7 @@ If paths point to an old Node install, remove the old directory from `PATH` or r
 
 ## Shell-Specific Checks
 
-Use:
-
-```text
-docs/INSTALL-SHELLS.md
-```
+Use: [docs/INSTALL-SHELLS.md](https://github.com/karurikwao/signaltrim/blob/main/docs/INSTALL-SHELLS.md).
 
 Quick repo check:
 

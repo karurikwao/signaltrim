@@ -42,6 +42,8 @@ function runOptional(label, cmd, args) {
     'CreateInstance',
     'ERROR_PATH_NOT_FOUND',
     'The system cannot find the path specified',
+    'Windows Subsystem for Linux has no installed distributions',
+    'wsl.exe --install',
   ].some((needle) => output.includes(needle));
   if (launchFailure) {
     notes.push(`${label}: skipped (${cmd} launch failed)`);

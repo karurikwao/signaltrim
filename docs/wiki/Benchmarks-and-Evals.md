@@ -14,17 +14,9 @@ The honest caveat:
 - Rule text has overhead.
 - Already-terse workflows can be net-negative.
 
-Full discussion:
+Full discussion: [docs/HONEST-NUMBERS.md](https://github.com/karurikwao/signaltrim/blob/main/docs/HONEST-NUMBERS.md).
 
-```text
-docs/HONEST-NUMBERS.md
-```
-
-Repeatable comparison page:
-
-```text
-docs/BENCHMARKS.md
-```
+Repeatable comparison page: [docs/BENCHMARKS.md](https://github.com/karurikwao/signaltrim/blob/main/docs/BENCHMARKS.md).
 
 ## Benchmark Harness
 

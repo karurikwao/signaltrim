@@ -2,6 +2,8 @@
 
 Use this before a public launch push.
 
+Wiki guide: [Home](https://github.com/karurikwao/signaltrim/wiki) and [Development and Releases](https://github.com/karurikwao/signaltrim/wiki/Development-and-Releases).
+
 ## Repo Surface
 
 - README badge row shows CI, version, license, and Node engine.

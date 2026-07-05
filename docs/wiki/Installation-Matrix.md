@@ -7,6 +7,8 @@ SignalTrim supports two installation classes:
 
 ## Unified Installer Flags
 
+Canonical full matrix with every current installer profile: [INSTALL.md](https://github.com/karurikwao/signaltrim/blob/main/INSTALL.md).
+
 | Flag | Use |
 |---|---|
 | `--dry-run` | Print planned commands and writes. |
@@ -25,17 +27,17 @@ SignalTrim supports two installation classes:
 
 ## Primary Agents
 
-| Agent | Command | Auto-activation |
-|---|---|---|
-| Claude Code | `claude plugin marketplace add karurikwao/signaltrim && claude plugin install signaltrim@signaltrim` | Yes |
-| Gemini CLI | `gemini extensions install https://github.com/karurikwao/signaltrim` | Yes |
-| opencode | `npx -y github:karurikwao/signaltrim -- --only opencode` | Yes |
-| OpenClaw | `npx -y github:karurikwao/signaltrim -- --only openclaw` | Yes |
-| Hermes Agent | `npx -y github:karurikwao/signaltrim -- --only hermes` | Yes |
-| Codex CLI | `npx skills add karurikwao/signaltrim -a codex` | Per session |
-| Cursor | `npx skills add karurikwao/signaltrim -a cursor` | Per session unless `--with-init` |
-| Windsurf | `npx skills add karurikwao/signaltrim -a windsurf` | Per session unless `--with-init` |
-| Cline | `npx skills add karurikwao/signaltrim -a cline` | Per session unless `--with-init` |
+| Agent | Installer id | Skills profile | Command | Detection type | Auto-activation |
+|---|---|---|---|---|---|
+| Claude Code | `claude` | n/a | `claude plugin marketplace add karurikwao/signaltrim && claude plugin install signaltrim@signaltrim` | CLI probe | Yes |
+| Gemini CLI | `gemini` | n/a | `gemini extensions install https://github.com/karurikwao/signaltrim` | CLI probe | Yes |
+| opencode | `opencode` | n/a | `npx -y github:karurikwao/signaltrim -- --only opencode` | CLI/config probe | Yes |
+| OpenClaw | `openclaw` | n/a | `npx -y github:karurikwao/signaltrim -- --only openclaw` | Workspace env | Yes |
+| Hermes Agent | `hermes` | n/a | `npx -y github:karurikwao/signaltrim -- --only hermes` | Config probe | Yes |
+| Codex CLI | `codex` | `codex` | `npx skills add karurikwao/signaltrim -a codex` | Skills profile | Per session |
+| Cursor | `cursor` | `cursor` | `npx skills add karurikwao/signaltrim -a cursor` | Skills profile | Per session unless `--with-init` |
+| Windsurf | `windsurf` | `windsurf` | `npx skills add karurikwao/signaltrim -a windsurf` | Skills profile | Per session unless `--with-init` |
+| Cline | `cline` | `cline` | `npx skills add karurikwao/signaltrim -a cline` | Skills profile | Per session unless `--with-init` |
 
 ## Long-Tail Profiles
 
@@ -107,4 +109,3 @@ src/rules/signaltrim-activate.md
 - `--config-dir` does not redirect third-party CLIs like `claude plugin install` or `gemini extensions install`.
 - Dry-run mode is intended to be side-effect free.
 - The installer writes a `settings.json.bak` before merging Claude settings.
-

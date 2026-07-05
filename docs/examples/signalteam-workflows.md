@@ -2,6 +2,8 @@
 
 SignalTeam is the compact subagent pack for investigation, implementation, and review.
 
+Wiki guide: [SignalTeam](https://github.com/karurikwao/signaltrim/wiki/SignalTeam) and [Examples](https://github.com/karurikwao/signaltrim/wiki/Examples).
+
 ## Reviewer Loop
 
 Use when a change already exists and needs risk-focused review.

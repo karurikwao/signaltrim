@@ -11,6 +11,8 @@ This page gets SignalTrim installed and verified quickly.
 
 ## Recommended Install
 
+If you do not like pipe-to-shell installs, read the script first or use the dry-run `npx` path below. The shell shims delegate to the same Node installer and support preview mode before writing.
+
 macOS, Linux, WSL, Git Bash:
 
 ```bash
@@ -66,6 +68,12 @@ npx skills add karurikwao/signaltrim -a codex
 ```
 
 Full matrix: [Installation Matrix](Installation-Matrix.md).
+
+Canonical repo docs:
+
+- [INSTALL.md](https://github.com/karurikwao/signaltrim/blob/main/INSTALL.md)
+- [Windows install notes](https://github.com/karurikwao/signaltrim/blob/main/docs/install-windows.md)
+- [Troubleshooting](Troubleshooting.md)
 
 ## Activate
 

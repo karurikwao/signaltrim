@@ -67,9 +67,8 @@ You may still need to manually remove repo-local rule files created by `--with-i
 
 ## Why does the README say 65%?
 
-That is the current average output-token reduction from the committed benchmark prompts. Read [Benchmarks and Evals](Benchmarks-and-Evals.md) and `docs/HONEST-NUMBERS.md` for caveats.
+That is the current average output-token reduction from the committed benchmark prompts. Read [Benchmarks and Evals](Benchmarks-and-Evals.md) and [docs/HONEST-NUMBERS.md](https://github.com/karurikwao/signaltrim/blob/main/docs/HONEST-NUMBERS.md) for caveats.
 
 ## Why does compression refuse some markdown files?
 
 Because the file path or content may be unsafe, non-natural-language, too large, invalid UTF-8, or structurally risky. Refusal is preferred over silent data loss.
-

@@ -2,6 +2,8 @@
 
 These examples are ready-to-copy starting points. Prefer the installer unless you need manual control.
 
+Wiki guide: [Claude Code Hooks](https://github.com/karurikwao/signaltrim/wiki/Claude-Code-Hooks) and [Examples](https://github.com/karurikwao/signaltrim/wiki/Examples).
+
 ## Install Hooks
 
 ```bash

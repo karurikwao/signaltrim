@@ -58,8 +58,4 @@ When changing an agent:
 3. Run `python tests/verify_repo.py`.
 4. Run `npm test`.
 
-Workflow examples:
-
-```text
-docs/examples/signalteam-workflows.md
-```
+Workflow examples: [docs/examples/signalteam-workflows.md](https://github.com/karurikwao/signaltrim/blob/main/docs/examples/signalteam-workflows.md).

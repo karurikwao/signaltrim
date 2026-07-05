@@ -2,6 +2,8 @@
 
 SignalTrim uses Node as the installer core and thin shell shims for entry. The supported runtime is Node 20.19+.
 
+Wiki guide: [Getting Started](https://github.com/karurikwao/signaltrim/wiki/Getting-Started), [Installation Matrix](https://github.com/karurikwao/signaltrim/wiki/Installation-Matrix), and [Troubleshooting](https://github.com/karurikwao/signaltrim/wiki/Troubleshooting).
+
 ## PowerShell
 
 Use this on Windows PowerShell 5.1+ or PowerShell 7+:

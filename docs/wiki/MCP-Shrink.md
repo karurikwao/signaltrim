@@ -83,8 +83,4 @@ node tests/test_mcp_shrink.js
 npm test
 ```
 
-Preset examples:
-
-```text
-docs/examples/mcp-shrink-presets.md
-```
+Preset examples: [docs/examples/mcp-shrink-presets.md](https://github.com/karurikwao/signaltrim/blob/main/docs/examples/mcp-shrink-presets.md).

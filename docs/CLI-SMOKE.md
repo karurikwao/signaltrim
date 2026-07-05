@@ -2,6 +2,8 @@
 
 SignalTrim has a fast smoke command for proving that the public CLI surfaces still launch and fail cleanly.
 
+Wiki guide: [Development and Releases](https://github.com/karurikwao/signaltrim/wiki/Development-and-Releases).
+
 ```bash
 npm run smoke
 ```

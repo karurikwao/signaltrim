@@ -2,6 +2,8 @@
 
 SignalTrim reports output-token reduction only. It does not claim input tokens, reasoning tokens, or rule overhead disappear.
 
+Wiki guide: [Benchmarks and Evals](https://github.com/karurikwao/signaltrim/wiki/Benchmarks-and-Evals).
+
 ## Current Snapshot
 
 Version: `0.6.4`

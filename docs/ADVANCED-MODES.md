@@ -2,6 +2,8 @@
 
 SignalTrim modes change response density, not task semantics.
 
+Wiki guide: [Concepts and Modes](https://github.com/karurikwao/signaltrim/wiki/Concepts-and-Modes).
+
 ## Mode Matrix
 
 | Mode | Use when | Avoid when | Quality check |

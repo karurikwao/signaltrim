@@ -4,6 +4,8 @@ One install. Works for every AI coding agent on your machine.
 
 If just want it to work, run the one-liner. If want to know what gets touched, scroll down.
 
+Wiki guide: [Getting Started](https://github.com/karurikwao/signaltrim/wiki/Getting-Started) and [Installation Matrix](https://github.com/karurikwao/signaltrim/wiki/Installation-Matrix).
+
 ## One-liner
 
 **macOS / Linux / WSL / Git Bash**

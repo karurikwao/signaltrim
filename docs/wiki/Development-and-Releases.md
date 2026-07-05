@@ -44,7 +44,6 @@ The package should include:
 - `benchmarks/`
 - `evals/`
 - `docs/`
-- `public/`
 
 It should not include:
 
@@ -109,6 +108,25 @@ git clone https://github.com/karurikwao/signaltrim.wiki.git
 
 Pages are plain Markdown files. `Home.md` is the landing page. `_Sidebar.md` controls navigation.
 
+Publish or sync the live Wiki tab:
+
+```bash
+tmp="$(mktemp -d)"
+git clone https://github.com/karurikwao/signaltrim.wiki.git "$tmp"
+cp docs/wiki/*.md "$tmp"/
+git -C "$tmp" status --short
+git -C "$tmp" add *.md
+git -C "$tmp" commit -m "docs: sync wiki"
+git -C "$tmp" push origin HEAD
+```
+
+After pushing, verify:
+
+- `https://github.com/karurikwao/signaltrim/wiki`
+- `_Sidebar.md` navigation.
+- `_Footer.md` privacy footer.
+- Links to repo docs under `docs/`.
+
 ## Release Checklist
 
 Use the full maintainer checklist:
@@ -138,9 +156,10 @@ Manual launch checks still matter:
 3. Run package dry-run.
 4. Search for stale public links and old install commands.
 5. Push `main`.
-6. Deploy Cloudflare Pages from `docs/`.
-7. Verify live page and GIF.
-8. Confirm GitHub install path:
+6. Sync the GitHub Wiki from `docs/wiki/`.
+7. Deploy Cloudflare Pages from `docs/`.
+8. Verify live page and GIF.
+9. Confirm GitHub install path:
 
 ```bash
 npx -y github:karurikwao/signaltrim -- --dry-run --list

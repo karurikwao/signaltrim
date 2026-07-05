@@ -74,11 +74,7 @@ SignalTrim should drop back to normal clear prose for:
 
 After the clear section, SignalTrim can resume compact style.
 
-Advanced mode examples:
-
-```text
-docs/ADVANCED-MODES.md
-```
+Advanced mode examples: [docs/ADVANCED-MODES.md](https://github.com/karurikwao/signaltrim/blob/main/docs/ADVANCED-MODES.md).
 
 ## Good Output Example
 

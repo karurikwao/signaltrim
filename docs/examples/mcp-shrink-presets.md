@@ -2,6 +2,8 @@
 
 `signaltrim-shrink` wraps an upstream MCP server. It compresses listed prose fields before the model reads them.
 
+Wiki guide: [MCP Shrink](https://github.com/karurikwao/signaltrim/wiki/MCP-Shrink) and [Examples](https://github.com/karurikwao/signaltrim/wiki/Examples).
+
 ## Concise
 
 Use when tool descriptions are long but already structured.

@@ -15,7 +15,7 @@
   <a href="https://signaltrim.pages.dev/#proof">Live demo</a> |
   <a href="https://signaltrim.pages.dev/">Launch page</a> |
   <a href="https://github.com/karurikwao/signaltrim">GitHub repo</a> |
-  <a href="docs/wiki/Home.md">Wiki</a>
+  <a href="https://github.com/karurikwao/signaltrim/wiki">Wiki</a>
 </p>
 
 <p align="center">
@@ -48,7 +48,7 @@
   <a href="#proof">Proof</a> ·
   <a href="#verify">Verify</a> ·
   <a href="#privacy">Privacy</a> ·
-  <a href="docs/wiki/Home.md">Wiki</a>
+  <a href="https://github.com/karurikwao/signaltrim/wiki">Wiki</a>
 </p>
 
 ---
@@ -136,7 +136,9 @@ npx -y github:karurikwao/signaltrim -- --only opencode
 ```
 
 The full per-agent matrix, flags, dry-run mode, and uninstall path live in [INSTALL.md](./INSTALL.md).
-For the full repo guide, see the [SignalTrim wiki](./docs/wiki/Home.md).
+For the full repo guide, see the [SignalTrim Wiki](https://github.com/karurikwao/signaltrim/wiki). It covers getting started, the install matrix, modes, agent integrations, Claude Code hooks, MCP Shrink, benchmarks/evals, security/privacy, troubleshooting, and development/release notes.
+
+The wiki source mirror lives in [`docs/wiki/`](./docs/wiki/Home.md) so documentation changes can be reviewed with normal code changes before publishing to the Wiki tab.
 
 </details>
 
@@ -162,12 +164,14 @@ Docs:
 
 - [CLI smoke tests](./docs/CLI-SMOKE.md)
 - [Shell install matrix](./docs/INSTALL-SHELLS.md)
+- [Troubleshooting](./docs/wiki/Troubleshooting.md)
 - [Benchmark comparison](./docs/BENCHMARKS.md)
 - [Advanced compression modes](./docs/ADVANCED-MODES.md)
 - [Claude Code hook examples](./docs/examples/claude-code-hooks.md)
 - [MCP Shrink presets](./docs/examples/mcp-shrink-presets.md)
 - [SignalTeam workflows](./docs/examples/signalteam-workflows.md)
 - [Release checklist](./docs/RELEASE-CHECKLIST.md)
+- [Security and privacy](./SECURITY.md)
 - [Security audit checklist](./docs/SECURITY-AUDIT.md)
 - [Launch checklist](./docs/LAUNCH-CHECKLIST.md)
 
@@ -270,11 +274,13 @@ SignalTrim earns stars by being useful on day one: install works, docs are hones
 <sub>
 <strong>Docs:</strong>
 <a href="./INSTALL.md">Install matrix</a> ·
-<a href="./docs/wiki/Home.md">Wiki</a> ·
+<a href="https://github.com/karurikwao/signaltrim/wiki">Wiki</a> ·
 <a href="./docs/CLI-SMOKE.md">Smoke tests</a> ·
 <a href="./docs/BENCHMARKS.md">Benchmarks</a> ·
+<a href="./docs/wiki/Troubleshooting.md">Troubleshooting</a> ·
 <a href="./docs/examples/mcp-shrink-presets.md">MCP presets</a> ·
 <a href="./docs/RELEASE-CHECKLIST.md">Release</a> ·
+<a href="./SECURITY.md">Security</a> ·
 <a href="./docs/HONEST-NUMBERS.md">Honest numbers</a> ·
 <a href="./CONTRIBUTING.md">Contributing</a> ·
 <a href="./CLAUDE.md">Maintainer guide</a> ·

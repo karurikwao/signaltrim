@@ -2,11 +2,14 @@
 
 Use this checklist before publishing a SignalTrim release.
 
+Wiki guide: [Development and Releases](https://github.com/karurikwao/signaltrim/wiki/Development-and-Releases).
+
 ## Preflight
 
 - Confirm `package.json` version matches the intended tag.
 - Confirm README badges match package metadata.
 - Confirm `CHANGELOG` or release notes are prepared.
+- Confirm GitHub Wiki source under `docs/wiki/` is ready to sync.
 - Run local verification:
 
 ```bash
@@ -33,6 +36,7 @@ npm run pack:dry
 - GitHub release artifacts include npm tarball and source archives.
 - GitHub release artifacts include platform launch bundles for Windows, macOS, and Linux.
 - Platform bundles are Node launch packs, not native compiled executables; Node 20.19+ remains required.
+- GitHub Wiki source in `docs/wiki/` has been pushed to `https://github.com/karurikwao/signaltrim.wiki.git`.
 
 ## Publish
 
@@ -45,6 +49,18 @@ If publishing to npm later:
 
 ```bash
 npm publish --provenance
+```
+
+Sync the Wiki tab:
+
+```bash
+tmp="$(mktemp -d)"
+git clone https://github.com/karurikwao/signaltrim.wiki.git "$tmp"
+cp docs/wiki/*.md "$tmp"/
+git -C "$tmp" status --short
+git -C "$tmp" add *.md
+git -C "$tmp" commit -m "docs: sync wiki"
+git -C "$tmp" push origin HEAD
 ```
 
 ## Rollback

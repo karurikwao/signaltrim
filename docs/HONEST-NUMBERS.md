@@ -2,6 +2,8 @@
 
 SignalTrim save tokens sometimes. SignalTrim cost tokens sometimes. This page say which is which, with the real numbers. No marketing. If signaltrim lose for your workload, this page tell you to turn it off.
 
+Wiki guide: [Benchmarks and Evals](https://github.com/karurikwao/signaltrim/wiki/Benchmarks-and-Evals).
+
 ## What signaltrim actually does
 
 SignalTrim is a system-prompt skill. It makes the model **write shorter output**. That is the whole mechanism. It does not compress your input, your context, your files, or the model's thinking tokens.

@@ -123,8 +123,4 @@ python -m unittest tests.test_hooks
 npm test
 ```
 
-Ready-to-copy examples:
-
-```text
-docs/examples/claude-code-hooks.md
-```
+Ready-to-copy examples: [docs/examples/claude-code-hooks.md](https://github.com/karurikwao/signaltrim/blob/main/docs/examples/claude-code-hooks.md).

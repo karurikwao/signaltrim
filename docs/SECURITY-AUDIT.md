@@ -2,6 +2,8 @@
 
 Use this before releases and after touching installer, hook, compression, or MCP code.
 
+Wiki guide: [Security and Privacy](https://github.com/karurikwao/signaltrim/wiki/Security-and-Privacy).
+
 ## Privacy Model
 
 - Core SignalTrim has no backend.
