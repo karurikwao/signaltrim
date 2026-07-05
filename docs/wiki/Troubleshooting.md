@@ -85,6 +85,78 @@ More detail:
 docs/install-windows.md
 ```
 
+## Missing Node
+
+SignalTrim requires Node 20.19+.
+
+Check:
+
+```bash
+node -p "process.versions.node"
+```
+
+Windows:
+
+```powershell
+winget install OpenJS.NodeJS.LTS
+```
+
+macOS:
+
+```bash
+brew install node
+```
+
+Reopen the terminal after installing Node so `node` and `npx` are on `PATH`.
+
+## Stale npx Cache
+
+If `npx` appears to run an old copy:
+
+```bash
+npm cache verify
+npx -y github:karurikwao/signaltrim -- --list
+```
+
+Hard reset:
+
+```bash
+npm cache clean --force
+npx -y github:karurikwao/signaltrim -- --list
+```
+
+## PATH Confusion
+
+Print the active binaries:
+
+```bash
+node -p "process.execPath"
+npm -v
+npx -v
+```
+
+PowerShell:
+
+```powershell
+Get-Command node,npm,npx | Select-Object Name,Source
+```
+
+If paths point to an old Node install, remove the old directory from `PATH` or reinstall Node 20.19+.
+
+## Shell-Specific Checks
+
+Use:
+
+```text
+docs/INSTALL-SHELLS.md
+```
+
+Quick repo check:
+
+```bash
+npm run check:install-surfaces
+```
+
 ## Settings JSON Problems
 
 SignalTrim supports JSONC comments and trailing commas, then writes strict JSON.
@@ -150,4 +222,3 @@ npm test
 node tests/test_mcp_shrink.js
 npm pack --dry-run --json
 ```
-

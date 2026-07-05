@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: SignalTrim Wiki
+    url: https://github.com/karurikwao/signaltrim/wiki
+    about: Start here for install, troubleshooting, and integration docs.
+  - name: Live Demo
+    url: https://signaltrim.pages.dev/
+    about: See the public demo and launch page.

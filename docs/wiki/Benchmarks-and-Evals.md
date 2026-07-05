@@ -20,6 +20,12 @@ Full discussion:
 docs/HONEST-NUMBERS.md
 ```
 
+Repeatable comparison page:
+
+```text
+docs/BENCHMARKS.md
+```
+
 ## Benchmark Harness
 
 Path:
@@ -94,4 +100,3 @@ Bad benchmark results:
 - No raw prompt data.
 - No caveat about input tokens.
 - No regression tests.
-

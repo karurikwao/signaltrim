@@ -30,6 +30,10 @@
 </p>
 
 <p align="center">
+  <img src="docs/assets/launch-page-preview.svg" alt="SignalTrim launch page preview" width="720">
+</p>
+
+<p align="center">
   <a href="https://github.com/karurikwao/signaltrim/stargazers"><img src="https://img.shields.io/github/stars/karurikwao/signaltrim?style=flat&color=2f7d5b" alt="Stars"></a>
   <a href="./INSTALL.md"><img src="https://img.shields.io/badge/agents-30%2B-3867d6?style=flat" alt="30+ agents"></a>
   <a href="./docs/HONEST-NUMBERS.md"><img src="https://img.shields.io/badge/numbers-honest-bd8b13?style=flat" alt="Honest numbers"></a>
@@ -42,6 +46,7 @@
   <a href="#modes">Modes</a> ·
   <a href="#what-ships">What ships</a> ·
   <a href="#proof">Proof</a> ·
+  <a href="#verify">Verify</a> ·
   <a href="#privacy">Privacy</a> ·
   <a href="docs/wiki/Home.md">Wiki</a>
 </p>
@@ -134,6 +139,37 @@ The full per-agent matrix, flags, dry-run mode, and uninstall path live in [INST
 For the full repo guide, see the [SignalTrim wiki](./docs/wiki/Home.md).
 
 </details>
+
+## Verify
+
+Fast local proof:
+
+```bash
+npm run smoke
+npm run check:install-surfaces
+```
+
+Full maintainer proof:
+
+```bash
+npm test
+npm run test:python
+npm run verify
+npm run pack:dry
+```
+
+Docs:
+
+- [CLI smoke tests](./docs/CLI-SMOKE.md)
+- [Shell install matrix](./docs/INSTALL-SHELLS.md)
+- [Benchmark comparison](./docs/BENCHMARKS.md)
+- [Advanced compression modes](./docs/ADVANCED-MODES.md)
+- [Claude Code hook examples](./docs/examples/claude-code-hooks.md)
+- [MCP Shrink presets](./docs/examples/mcp-shrink-presets.md)
+- [SignalTeam workflows](./docs/examples/signalteam-workflows.md)
+- [Release checklist](./docs/RELEASE-CHECKLIST.md)
+- [Security audit checklist](./docs/SECURITY-AUDIT.md)
+- [Launch checklist](./docs/LAUNCH-CHECKLIST.md)
 
 ## Modes
 
@@ -235,6 +271,10 @@ SignalTrim earns stars by being useful on day one: install works, docs are hones
 <strong>Docs:</strong>
 <a href="./INSTALL.md">Install matrix</a> ·
 <a href="./docs/wiki/Home.md">Wiki</a> ·
+<a href="./docs/CLI-SMOKE.md">Smoke tests</a> ·
+<a href="./docs/BENCHMARKS.md">Benchmarks</a> ·
+<a href="./docs/examples/mcp-shrink-presets.md">MCP presets</a> ·
+<a href="./docs/RELEASE-CHECKLIST.md">Release</a> ·
 <a href="./docs/HONEST-NUMBERS.md">Honest numbers</a> ·
 <a href="./CONTRIBUTING.md">Contributing</a> ·
 <a href="./CLAUDE.md">Maintainer guide</a> ·

@@ -1,25 +1,33 @@
 ---
 name: Bug report
-about: SignalTrim speak wrong or break
+about: Report something broken in SignalTrim
 labels: bug
 ---
 
-**What happen**
-<!-- What signaltrim do wrong -->
+## What broke
 
-**Expected**
-<!-- What signaltrim should do -->
+<!-- Describe the broken behavior. -->
 
-**Before/after example**
+## Expected behavior
+
+<!-- What should have happened instead? -->
+
+## Reproduction
+
+```bash
+# paste the shortest command or prompt that reproduces it
 ```
-Input: [your prompt]
-Got:   [what signaltrim said]
-Want:  [what signaltrim should say]
+
+## Environment
+
+- OS:
+- Shell: PowerShell / Bash / Zsh / Fish / other
+- Node version: `node -p "process.versions.node"`
+- Install method: `curl`, `irm`, `npx`, local clone, agent plugin, other
+- Agent: Claude Code / Codex / Gemini / Cursor / Windsurf / opencode / other
+
+## Logs or output
+
+```text
+paste exact error text here
 ```
-
-**Platform**
-- [ ] Claude Code
-- [ ] Codex
-- [ ] Other: ___
-
-**Version / install method**

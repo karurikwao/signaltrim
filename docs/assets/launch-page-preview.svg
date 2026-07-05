@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">SignalTrim launch page preview</title>
+  <desc id="desc">Preview of the SignalTrim launch page with demo, proof, and install sections.</desc>
+  <rect width="1200" height="675" fill="#f6f8fb"/>
+  <rect x="72" y="64" width="1056" height="547" rx="18" fill="#ffffff" stroke="#d9e2ef"/>
+  <rect x="72" y="64" width="1056" height="74" rx="18" fill="#14213d"/>
+  <text x="112" y="112" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="#ffffff">SignalTrim</text>
+  <text x="877" y="109" font-family="Arial, sans-serif" font-size="18" fill="#cbd5e1">Live demo  |  Wiki  |  GitHub</text>
+  <text x="112" y="215" font-family="Arial, sans-serif" font-size="48" font-weight="700" fill="#14213d">Proof-first token discipline</text>
+  <text x="112" y="260" font-family="Arial, sans-serif" font-size="24" fill="#334155">Less filler from AI coding agents. Same code, commands, paths, and errors.</text>
+  <rect x="112" y="309" width="456" height="190" rx="12" fill="#edf2f7" stroke="#d9e2ef"/>
+  <text x="142" y="355" font-family="Consolas, monospace" font-size="20" fill="#475569">Normal agent:</text>
+  <text x="142" y="392" font-family="Consolas, monospace" font-size="18" fill="#64748b">"Sure, I'd be happy to help..."</text>
+  <text x="142" y="449" font-family="Consolas, monospace" font-size="20" fill="#0f766e">SignalTrim:</text>
+  <text x="142" y="486" font-family="Consolas, monospace" font-size="18" fill="#0f766e">"Bug in auth middleware. Fix expiry."</text>
+  <rect x="632" y="309" width="384" height="190" rx="12" fill="#0f766e"/>
+  <text x="670" y="365" font-family="Arial, sans-serif" font-size="52" font-weight="700" fill="#ffffff">65%</text>
+  <text x="670" y="411" font-family="Arial, sans-serif" font-size="24" fill="#d1fae5">average output-token reduction</text>
+  <text x="670" y="455" font-family="Arial, sans-serif" font-size="18" fill="#a7f3d0">Measured, caveated, reproducible.</text>
+  <rect x="112" y="542" width="260" height="46" rx="8" fill="#14213d"/>
+  <text x="142" y="572" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#ffffff">Install SignalTrim</text>
+  <rect x="392" y="542" width="220" height="46" rx="8" fill="#ffffff" stroke="#94a3b8"/>
+  <text x="422" y="572" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#14213d">See benchmarks</text>
+</svg>

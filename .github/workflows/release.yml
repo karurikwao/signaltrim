@@ -1,0 +1,79 @@
+name: Release Artifacts
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify before packaging
+        run: |
+          npm test
+          npm run smoke
+          npm run check:install-surfaces
+          npm run test:python
+          npm run verify
+
+      - name: Build release archives
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist/release
+          version="$(node -p "require('./package.json').version")"
+          npm pack --pack-destination dist/release
+          git archive --format=tar.gz --prefix="signaltrim-${version}/" -o "dist/release/signaltrim-${version}-source.tar.gz" HEAD
+          git archive --format=zip --prefix="signaltrim-${version}/" -o "dist/release/signaltrim-${version}-source.zip" HEAD
+          node scripts/build-release-artifacts.cjs
+          node - <<'NODE'
+          const crypto = require('crypto');
+          const fs = require('fs');
+          const path = require('path');
+          const dir = 'dist/release';
+          const lines = [];
+          for (const name of fs.readdirSync(dir).sort()) {
+            if (name.endsWith('.sha256')) continue;
+            const file = path.join(dir, name);
+            if (!fs.statSync(file).isFile()) continue;
+            const hash = crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+            lines.push(`${hash}  ${name}`);
+          }
+          fs.writeFileSync(path.join(dir, 'checksums.sha256'), lines.join('\n') + '\n');
+          NODE
+
+      - name: Upload artifact bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: signaltrim-release-artifacts
+          path: dist/release/*
+
+      - name: Publish GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME}"
+          gh release create "$tag" dist/release/* \
+            --title "SignalTrim ${tag}" \
+            --notes "Release artifacts include npm tarball, source archives, and SHA-256 checksums. Follow docs/RELEASE-CHECKLIST.md before promoting packages."

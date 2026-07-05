@@ -1,0 +1,63 @@
+name: Scheduled Verification
+
+on:
+  schedule:
+    - cron: "17 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run smoke tests
+        id: smoke
+        run: npm run smoke
+
+      - name: Run install-surface checks
+        id: install_surfaces
+        run: npm run check:install-surfaces
+
+      - name: Run full local verification
+        id: repo_verify
+        run: npm run verify
+
+      - name: Verify README command snippets
+        id: readme_snippets
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -F "curl -fsSL https://raw.githubusercontent.com/karurikwao/signaltrim/main/install.sh | bash" README.md
+          grep -F "irm https://raw.githubusercontent.com/karurikwao/signaltrim/main/install.ps1 | iex" README.md
+          grep -F "npm run smoke" README.md
+
+      - name: Write summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Scheduled Verification"
+            echo
+            echo "- Status: ${{ job.status }}"
+            echo "- Smoke tests: ${{ steps.smoke.outcome }}"
+            echo "- Install-surface checks: ${{ steps.install_surfaces.outcome }}"
+            echo "- Repository verification: ${{ steps.repo_verify.outcome }}"
+            echo "- README command snippets: ${{ steps.readme_snippets.outcome }}"
+            echo
+            echo "Any failure is attached to the failed workflow step above."
+          } >> "$GITHUB_STEP_SUMMARY"

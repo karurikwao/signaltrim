@@ -27,9 +27,17 @@
 - [Troubleshooting](Troubleshooting.md)
 - [Development and Releases](Development-and-Releases.md)
 
+## Repo Docs
+
+- [CLI Smoke Tests](https://github.com/karurikwao/signaltrim/blob/main/docs/CLI-SMOKE.md)
+- [Shell Install Matrix](https://github.com/karurikwao/signaltrim/blob/main/docs/INSTALL-SHELLS.md)
+- [Advanced Modes](https://github.com/karurikwao/signaltrim/blob/main/docs/ADVANCED-MODES.md)
+- [Release Checklist](https://github.com/karurikwao/signaltrim/blob/main/docs/RELEASE-CHECKLIST.md)
+- [Security Audit](https://github.com/karurikwao/signaltrim/blob/main/docs/SECURITY-AUDIT.md)
+- [Launch Checklist](https://github.com/karurikwao/signaltrim/blob/main/docs/LAUNCH-CHECKLIST.md)
+
 ## External
 
 - [Live site](https://signaltrim.pages.dev/)
 - [GitHub repo](https://github.com/karurikwao/signaltrim)
 - [Issues](https://github.com/karurikwao/signaltrim/issues)
-

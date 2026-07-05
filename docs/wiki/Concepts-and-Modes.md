@@ -74,6 +74,12 @@ SignalTrim should drop back to normal clear prose for:
 
 After the clear section, SignalTrim can resume compact style.
 
+Advanced mode examples:
+
+```text
+docs/ADVANCED-MODES.md
+```
+
 ## Good Output Example
 
 Normal:
@@ -107,4 +113,3 @@ Better:
 ```text
 Bug in auth middleware. Token expiry check uses `<` instead of `<=`.
 ```
-

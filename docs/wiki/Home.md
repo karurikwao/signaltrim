@@ -19,6 +19,10 @@ Useful links:
 - Full install matrix: [Installation Matrix](Installation-Matrix.md)
 - Security model: [Security and Privacy](Security-and-Privacy.md)
 - Troubleshooting: [Troubleshooting](Troubleshooting.md)
+- CLI smoke tests: https://github.com/karurikwao/signaltrim/blob/main/docs/CLI-SMOKE.md
+- Benchmark comparison: https://github.com/karurikwao/signaltrim/blob/main/docs/BENCHMARKS.md
+- Release checklist: https://github.com/karurikwao/signaltrim/blob/main/docs/RELEASE-CHECKLIST.md
+- Launch checklist: https://github.com/karurikwao/signaltrim/blob/main/docs/LAUNCH-CHECKLIST.md
 
 ## What SignalTrim Is
 
@@ -49,6 +53,15 @@ SignalTrim does not:
 1. [Getting Started](Getting-Started.md) if you want SignalTrim installed.
 2. [Concepts and Modes](Concepts-and-Modes.md) if you want to understand how replies change.
 3. [Architecture](Architecture.md) if you want to maintain or extend the repo.
+
+## Maintainer Docs
+
+- [Shell install matrix](https://github.com/karurikwao/signaltrim/blob/main/docs/INSTALL-SHELLS.md)
+- [Advanced modes](https://github.com/karurikwao/signaltrim/blob/main/docs/ADVANCED-MODES.md)
+- [Claude Code hook examples](https://github.com/karurikwao/signaltrim/blob/main/docs/examples/claude-code-hooks.md)
+- [MCP Shrink presets](https://github.com/karurikwao/signaltrim/blob/main/docs/examples/mcp-shrink-presets.md)
+- [SignalTeam workflows](https://github.com/karurikwao/signaltrim/blob/main/docs/examples/signalteam-workflows.md)
+- [Security audit checklist](https://github.com/karurikwao/signaltrim/blob/main/docs/SECURITY-AUDIT.md)
 
 ## Repo Map
 
@@ -120,4 +133,3 @@ normal mode
 ```
 
 Claude Code plugin installs can auto-activate at session start. Static rule installs may need the first command per session.
-

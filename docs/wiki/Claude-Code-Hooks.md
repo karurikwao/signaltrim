@@ -123,3 +123,8 @@ python -m unittest tests.test_hooks
 npm test
 ```
 
+Ready-to-copy examples:
+
+```text
+docs/examples/claude-code-hooks.md
+```

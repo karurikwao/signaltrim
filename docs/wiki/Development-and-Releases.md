@@ -20,6 +20,8 @@ Run before pushing:
 python tests/verify_repo.py
 python -m unittest discover -s tests -p "test_*.py"
 npm test
+npm run smoke
+npm run check:install-surfaces
 node tests/test_mcp_shrink.js
 npm pack --dry-run --json
 ```
@@ -41,8 +43,8 @@ The package should include:
 - `commands/`
 - `benchmarks/`
 - `evals/`
-- `docs/HONEST-NUMBERS.md`
-- public assets
+- `docs/`
+- `public/`
 
 It should not include:
 
@@ -108,6 +110,28 @@ git clone https://github.com/karurikwao/signaltrim.wiki.git
 Pages are plain Markdown files. `Home.md` is the landing page. `_Sidebar.md` controls navigation.
 
 ## Release Checklist
+
+Use the full maintainer checklist:
+
+```text
+docs/RELEASE-CHECKLIST.md
+```
+
+The automated release workflow is:
+
+```text
+.github/workflows/release.yml
+```
+
+It builds the npm tarball, source archives, checksums, and platform launch bundles for Windows, macOS, and Linux.
+
+The recurring verification workflow is:
+
+```text
+.github/workflows/scheduled-verification.yml
+```
+
+Manual launch checks still matter:
 
 1. Confirm worktree clean before release prep.
 2. Run full test matrix.

@@ -1,17 +1,30 @@
 ---
 name: Feature request
-about: Make signaltrim better
+about: Suggest a SignalTrim improvement
 labels: enhancement
 ---
 
-**What you want**
-<!-- New behavior, new persona, new rule -->
+## What should SignalTrim do?
 
-**Before/after example**
-```
-Before: [current behavior]
-After:  [desired behavior]
+<!-- Describe the requested behavior. -->
+
+## Why is this useful?
+
+<!-- Explain the workflow it improves. -->
+
+## Example
+
+```text
+Before:
+
+After:
 ```
 
-**Why good**
-<!-- Why this help users -->
+## Target surface
+
+- [ ] CLI installer
+- [ ] Claude Code hooks
+- [ ] MCP shrink
+- [ ] SignalTeam agents
+- [ ] Documentation
+- [ ] Other:

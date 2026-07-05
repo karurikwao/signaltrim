@@ -28,8 +28,14 @@ jobs:
       - name: Run Node installer tests
         run: npm test
 
+      - name: Run CLI smoke tests
+        run: npm run smoke
+
+      - name: Check install surfaces
+        run: npm run check:install-surfaces
+
       - name: Run Python unit tests
-        run: python -m unittest discover -s tests -p "test_*.py"
+        run: npm run test:python
 
       - name: Run repository verification
-        run: python tests/verify_repo.py
+        run: npm run verify

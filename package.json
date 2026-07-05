@@ -20,7 +20,12 @@
     "node": ">=20.19"
   },
   "scripts": {
-    "test": "node --test tests/installer/*.test.mjs"
+    "test": "node --test tests/installer/*.test.mjs",
+    "smoke": "node --test tests/smoke/*.test.mjs",
+    "test:python": "python -m unittest discover -s tests -p \"test_*.py\"",
+    "verify": "python tests/verify_repo.py",
+    "check:install-surfaces": "node scripts/check-install-surfaces.cjs",
+    "pack:dry": "npm pack --dry-run --json"
   },
   "files": [
     "bin/",
@@ -35,10 +40,7 @@
     "CONTRIBUTING.md",
     "INSTALL.md",
     "SECURITY.md",
-    "docs/HONEST-NUMBERS.md",
-    "docs/assets/signaltrim-demo.gif",
-    "docs/assets/signaltrim-logo-banner.svg",
-    "docs/assets/signaltrim-mark.svg",
+    "docs/",
     "dist/signaltrim.skill",
     "README.md",
     "LICENSE",

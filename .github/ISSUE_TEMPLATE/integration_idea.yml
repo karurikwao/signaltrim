@@ -1,0 +1,35 @@
+name: Integration idea
+description: Suggest an agent, MCP, hook, or workflow integration.
+labels: ["integration", "enhancement"]
+body:
+  - type: input
+    id: target
+    attributes:
+      label: Target tool or agent
+      placeholder: Claude Code, Codex, MCP server name, IDE, shell, etc.
+    validations:
+      required: true
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Workflow
+      description: What should SignalTrim do in this tool?
+    validations:
+      required: true
+  - type: textarea
+    id: install
+    attributes:
+      label: Install or config notes
+      description: Known commands, paths, or docs for the target tool.
+    validations:
+      required: false
+  - type: checkboxes
+    id: surface
+    attributes:
+      label: Surface area
+      options:
+        - label: Installer support
+        - label: Hook or automation
+        - label: Static rule or skill file
+        - label: MCP proxy or preset
+        - label: Documentation only

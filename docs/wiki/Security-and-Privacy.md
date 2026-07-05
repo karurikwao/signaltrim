@@ -92,3 +92,8 @@ npm test
 python tests/verify_repo.py
 ```
 
+Release audit checklist:
+
+```text
+docs/SECURITY-AUDIT.md
+```
