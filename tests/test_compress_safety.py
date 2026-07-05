@@ -19,6 +19,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "skills" / "signaltrim-compress"))
 
 from scripts import compress as compress_mod  # noqa: E402
+from scripts import cli as cli_mod  # noqa: E402
 
 
 class CompressSafetyTests(unittest.TestCase):
@@ -98,6 +99,25 @@ class CompressSafetyTests(unittest.TestCase):
             with mock.patch.object(compress_mod, "call_claude") as call:
                 with self.assertRaises(ValueError):
                     compress_mod.compress_file(link)
+            call.assert_not_called()
+            self.assertEqual(target.read_text(), "# Heading\n\nPrivate notes.\n")
+
+    def test_cli_refuses_symlink_before_resolving_target(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            target = Path(tmp) / "private.md"
+            target.write_text("# Heading\n\nPrivate notes.\n")
+            link = Path(tmp) / "task.md"
+            try:
+                link.symlink_to(target)
+            except (OSError, NotImplementedError):
+                self.skipTest("symlink creation unavailable on this platform")
+
+            with mock.patch.object(sys, "argv", ["signaltrim", str(link)]), \
+                 mock.patch.object(cli_mod, "compress_file") as call, \
+                 self.assertRaises(SystemExit) as raised:
+                cli_mod.main()
+
+            self.assertEqual(raised.exception.code, 1)
             call.assert_not_called()
             self.assertEqual(target.read_text(), "# Heading\n\nPrivate notes.\n")
 

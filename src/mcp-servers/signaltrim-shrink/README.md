@@ -9,9 +9,7 @@ The result: tool catalogs that the model burns fewer tokens to read, with no cha
 ## Install
 
 ```bash
-npm install -g signaltrim-shrink
-# or run directly via npx
-npx signaltrim-shrink <upstream-command> [...args]
+npx -y --package github:karurikwao/signaltrim signaltrim-shrink <upstream-command> [...args]
 ```
 
 ## Use it
@@ -24,6 +22,8 @@ Wrap any MCP server in your Claude Code (or other client) config:
     "fs-shrunk": {
       "command": "npx",
       "args": [
+        "-y",
+        "--package", "github:karurikwao/signaltrim",
         "signaltrim-shrink",
         "npx", "@modelcontextprotocol/server-filesystem", "/path/to/dir"
       ]

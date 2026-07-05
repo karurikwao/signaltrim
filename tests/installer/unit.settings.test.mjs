@@ -204,6 +204,26 @@ test('removeSignalTrimHooks leaves user hooks that merely mention signaltrim (is
   assert.equal(s.hooks.SessionStart, undefined);
 });
 
+test('removeSignalTrimHooks preserves user hook in same entry as managed hook', () => {
+  const s = {
+    hooks: {
+      SessionStart: [
+        {
+          hooks: [
+            { type: 'command', command: 'node /x/hooks/signaltrim-activate.js' },
+            { type: 'command', command: 'node /Users/me/user-signaltrim-helper.js' },
+          ],
+        },
+      ],
+    },
+  };
+  const removed = SETTINGS.removeSignalTrimHooks(s);
+  assert.equal(removed, 1);
+  assert.equal(s.hooks.SessionStart.length, 1);
+  assert.equal(s.hooks.SessionStart[0].hooks.length, 1);
+  assert.equal(s.hooks.SessionStart[0].hooks[0].command, 'node /Users/me/user-signaltrim-helper.js');
+});
+
 test('removeSignalTrimHooks removes the Windows statusline-stats wiring (signaltrim-stats.js / .ps1)', () => {
   const s = {
     hooks: {

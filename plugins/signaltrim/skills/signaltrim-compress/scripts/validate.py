@@ -7,6 +7,7 @@ URL_REGEX = re.compile(r"https?://[^\s)]+")
 FENCE_OPEN_REGEX = re.compile(r"^(\s{0,3})(`{3,}|~{3,})(.*)$")
 HEADING_REGEX = re.compile(r"^(#{1,6})\s+(.*)", re.MULTILINE)
 BULLET_REGEX = re.compile(r"^\s*[-*+]\s+", re.MULTILINE)
+TABLE_SEPARATOR_CELL_REGEX = re.compile(r"^:?-{3,}:?$")
 
 # crude but effective path detection
 # Requires either a path prefix (./ ../ / or drive letter) or a slash/backslash within the match
@@ -82,6 +83,35 @@ def extract_code_blocks(text):
     return blocks
 
 
+def strip_fenced_code_blocks(text):
+    """Remove fenced code blocks before validating prose-only structures."""
+    out = []
+    lines = text.split("\n")
+    i = 0
+    n = len(lines)
+    while i < n:
+        m = FENCE_OPEN_REGEX.match(lines[i])
+        if not m:
+            out.append(lines[i])
+            i += 1
+            continue
+        fence_char = m.group(2)[0]
+        fence_len = len(m.group(2))
+        i += 1
+        while i < n:
+            close_m = FENCE_OPEN_REGEX.match(lines[i])
+            if (
+                close_m
+                and close_m.group(2)[0] == fence_char
+                and len(close_m.group(2)) >= fence_len
+                and close_m.group(3).strip() == ""
+            ):
+                i += 1
+                break
+            i += 1
+    return "\n".join(out)
+
+
 def extract_urls(text):
     return set(URL_REGEX.findall(text))
 
@@ -92,6 +122,55 @@ def extract_paths(text):
 
 def count_bullets(text):
     return len(BULLET_REGEX.findall(text))
+
+
+def split_table_row(line):
+    stripped = line.strip()
+    if "|" not in stripped:
+        return []
+    if stripped.startswith("|"):
+        stripped = stripped[1:]
+    if stripped.endswith("|"):
+        stripped = stripped[:-1]
+    cells = [cell.strip() for cell in stripped.split("|")]
+    return cells if len(cells) >= 2 else []
+
+
+def is_table_separator(line):
+    cells = split_table_row(line)
+    return bool(cells) and all(TABLE_SEPARATOR_CELL_REGEX.match(cell or "") for cell in cells)
+
+
+def extract_table_shapes(text):
+    """Return Markdown table row/column shapes outside fenced code blocks.
+
+    We intentionally validate shape instead of cell text: compression may
+    shorten prose inside cells, but it must not drop rows, columns, or the
+    header/separator structure.
+    """
+    lines = strip_fenced_code_blocks(text).splitlines()
+    shapes = []
+    i = 0
+    while i < len(lines) - 1:
+        header = split_table_row(lines[i])
+        separator = split_table_row(lines[i + 1])
+        if not header or not separator or not is_table_separator(lines[i + 1]):
+            i += 1
+            continue
+        if len(header) != len(separator):
+            i += 1
+            continue
+
+        column_counts = [len(header), len(separator)]
+        i += 2
+        while i < len(lines):
+            row = split_table_row(lines[i])
+            if not row:
+                break
+            column_counts.append(len(row))
+            i += 1
+        shapes.append(tuple(column_counts))
+    return shapes
 
 
 def extract_inline_codes(text):
@@ -145,10 +224,18 @@ def validate_bullets(orig, comp, result):
     if b1 == 0:
         return
 
-    diff = abs(b1 - b2) / b1
+    if b2 < b1 and (b1 - b2) / b1 > 0.15:
+        result.add_error(f"Bullet count dropped too much: {b1} -> {b2}")
+    elif b2 > b1 and (b2 - b1) / b1 > 0.15:
+        result.add_warning(f"Bullet count expanded significantly: {b1} -> {b2}")
 
-    if diff > 0.15:
-        result.add_warning(f"Bullet count changed too much: {b1} -> {b2}")
+
+def validate_tables(orig, comp, result):
+    t1 = extract_table_shapes(orig)
+    t2 = extract_table_shapes(comp)
+
+    if t1 != t2:
+        result.add_error(f"Table structure changed: {t1} -> {t2}")
 
 
 def validate_inline_codes(orig, comp, result):
@@ -181,6 +268,7 @@ def validate(original_path: Path, compressed_path: Path) -> ValidationResult:
     validate_urls(orig, comp, result)
     validate_paths(orig, comp, result)
     validate_bullets(orig, comp, result)
+    validate_tables(orig, comp, result)
     validate_inline_codes(orig, comp, result)
 
     return result

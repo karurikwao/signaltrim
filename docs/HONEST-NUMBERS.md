@@ -27,10 +27,10 @@ These figures are output tokens only — the skill does not compress your input,
 
 Plainly: **the skill costs ~1–1.5k input tokens every turn. If it saves less output than that, you are paying to use it.**
 
-- **Terse coding Q&A** ([#145](https://github.com/karurikwao/signaltrim/issues/145)). If your normal replies are ~150 output tokens, signaltrim saves maybe 70–100 of them and costs ~1k+ of input overhead per turn. Net loss. The user in #145 measured exactly this. They were right.
-- **Agents that bill by request or credit, not tokens** ([#506](https://github.com/karurikwao/signaltrim/issues/506)). GitHub Copilot charges premium *requests*. A shorter answer is the same request. SignalTrim cannot lower your Copilot credit use. Same logic for any per-message pricing.
+- **Terse coding Q&A.** If your normal replies are ~150 output tokens, signaltrim saves maybe 70-100 of them and costs ~1k+ of input overhead per turn. Net loss. The user who reported this was right.
+- **Agents that bill by request or credit, not tokens.** GitHub Copilot charges premium *requests*. A shorter answer is the same request. SignalTrim cannot lower your Copilot credit use. Same logic for any per-message pricing.
 - **Session-level totals** are always smaller than the output-reduction headline, because input tokens (your prompts, your context, your files, the injected rules) dwarf output tokens in agentic coding. Independent session-level measurements land around **14–21% total savings** on output-heavy workloads — and below zero on terse ones.
-- **Some tool-side counters go the wrong way** ([#550](https://github.com/karurikwao/signaltrim/issues/550)). One Cursor A/B showed 4.3M tokens with SignalTrim vs 1M without, and double the wall-clock time. We could not reproduce the exact run, but the honest reading is: rule re-injection, retries, and cache/context accounting can swamp output savings in some agents. If your A/B looks like that, SignalTrim is net-negative for you. Turn it off. A measurement that disagrees with the pitch still wins.
+- **Some tool-side counters go the wrong way.** One Cursor A/B showed 4.3M tokens with SignalTrim vs 1M without, and double the wall-clock time. We could not reproduce the exact run, but the honest reading is: rule re-injection, retries, and cache/context accounting can swamp output savings in some agents. If your A/B looks like that, SignalTrim is net-negative for you. Turn it off. A measurement that disagrees with the pitch still wins.
 
 ## Measure it yourself
 

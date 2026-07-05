@@ -27,7 +27,7 @@ Once installed, the core signaltrim mode does not phone home or run background n
 ### At install time: exactly these network requests, nothing else
 
 - `curl … install.sh | bash` (or `irm … install.ps1 | iex`) fetches the shim from raw.githubusercontent.com, which delegates to `npx -y github:karurikwao/signaltrim` — npm fetches this repo from GitHub.
-- The installer shells out to per-agent CLIs which fetch from their own registries: `claude plugin marketplace add` / `claude plugin install` (Anthropic/GitHub), `gemini extensions install`, `npm view signaltrim-shrink`, `npx -y skills add` (npm).
+- The installer shells out to per-agent CLIs which fetch from their own registries/sources: `claude plugin marketplace add` / `claude plugin install` (Anthropic/GitHub), `gemini extensions install`, `npx -y --package github:karurikwao/signaltrim signaltrim-shrink ...` (GitHub/npm), `npx -y skills add` (npm).
 - **Rare fallback:** if the installer runs detached from a repo checkout, it downloads the hook files from raw.githubusercontent.com **pinned to an immutable release tag** and verifies each against a published SHA-256 manifest before wiring anything (a mismatch aborts). From a normal clone or npx run, files are copied locally — offline installs work.
 
 Nothing is uploaded in any of these steps. Details and the full list of paths written: [INSTALL.md → Privacy](./INSTALL.md#privacy).

@@ -539,6 +539,10 @@ h1 {
   border-radius: 8px;
 }
 
+.reduced-motion-demo {
+  display: none;
+}
+
 .lab-panel {
   border: 1px solid var(--line);
   background: var(--paper-strong);
@@ -817,12 +821,13 @@ h1 {
   }
 
   .topbar-inner {
-    align-items: flex-start;
+    align-items: stretch;
     flex-direction: column;
     padding: 14px 0;
   }
 
   .nav {
+    width: 100%;
     justify-content: flex-start;
   }
 
@@ -899,6 +904,14 @@ h1 {
   .button:focus-visible {
     transform: none !important;
   }
+
+  .animated-demo {
+    display: none !important;
+  }
+
+  .reduced-motion-demo {
+    display: block !important;
+  }
 }
 </style>
 </head>
@@ -931,14 +944,14 @@ h1 {
           <a class="button" href="#install">Install route</a>
           <a class="button secondary" href="#proof">See proof</a>
         </div>
-        <div class="launch-links" aria-label="Published links">
+        <nav class="launch-links" aria-label="Published links">
           <a href="https://signaltrim.pages.dev/#proof">Live demo</a>
           <span>|</span>
           <a href="https://signaltrim.pages.dev/">Launch page</a>
           <span>|</span>
           <a href="https://github.com/karurikwao/signaltrim" target="_blank" rel="noreferrer">GitHub repo</a>
-        </div>
-        <dl class="metric-strip" aria-label="Repository signals">
+        </nav>
+        <dl class="metric-strip">
           <div class="metric">
             <dt><strong>50k+</strong></dt>
             <dd>launch target: useful enough to earn attention</dd>
@@ -971,7 +984,7 @@ h1 {
           <div class="command-line">
             <span class="prompt">$</span>
             <code id="heroCommand">curl -fsSL https://raw.githubusercontent.com/karurikwao/signaltrim/main/install.sh | bash</code>
-            <button class="copy-btn" type="button" data-copy-target="heroCommand">Copy</button>
+            <button class="copy-btn" type="button" data-copy-target="heroCommand" aria-label="Copy install command">Copy</button>
           </div>
           <p class="console-note">Need one specific agent? Use the router below. Need proof? Run benchmarks, evals, or `/signaltrim-stats`.</p>
           <p class="console-note" id="copyStatus" aria-live="polite"></p>
@@ -991,13 +1004,13 @@ h1 {
           <span class="tag red">Fix first</span>
           <h3>Install confidence</h3>
           <p>Windows piping, malformed settings, and plugin path drift are the sharpest trust killers. One failed install costs more than one missing mode.</p>
-          <a href="https://github.com/karurikwao/signaltrim/issues/546" target="_blank" rel="noreferrer">Windows install thread</a>
+          <a href="install-windows.md">Windows install guide</a>
         </article>
         <article class="radar-item">
           <span class="tag blue">Safety</span>
           <h3>Validated writes</h3>
           <p>Compression is powerful because it rewrites memory. That means backup location, validation, and atomic replace need to be explicit.</p>
-          <a href="https://github.com/karurikwao/signaltrim/issues/544" target="_blank" rel="noreferrer">Compression safety issue</a>
+          <a href="https://github.com/karurikwao/signaltrim/blob/main/skills/signaltrim-compress/SECURITY.md" target="_blank" rel="noreferrer">Compression safety notes</a>
         </article>
         <article class="radar-item">
           <span class="tag gold">Proof</span>
@@ -1065,7 +1078,8 @@ h1 {
         </section>
       </div>
       <figure class="demo-media">
-        <img src="assets/signaltrim-demo.gif" alt="Animated SignalTrim demo showing launch links, shorter technical output, install routing, and proof metrics">
+        <img class="animated-demo" src="assets/signaltrim-demo.gif" alt="Animated SignalTrim demo showing launch links, shorter technical output, install routing, and proof metrics">
+        <img class="reduced-motion-demo" src="assets/signaltrim-logo-banner.svg" alt="SignalTrim proof-first token discipline banner">
       </figure>
     </div>
   </section>
@@ -1117,7 +1131,7 @@ h1 {
           <p id="routeCopy">Best path for Claude Code users: install the plugin, hooks, skills, and statusline support through the official plugin flow.</p>
           <div class="route-command">
             <code id="routeCommand">claude plugin marketplace add karurikwao/signaltrim &amp;&amp; claude plugin install signaltrim@signaltrim</code>
-            <button class="copy-btn" type="button" data-copy-target="routeCommand">Copy</button>
+            <button class="copy-btn" type="button" data-copy-target="routeCommand" aria-label="Copy selected route command">Copy</button>
           </div>
           <ul class="mini-list" id="routeNotes">
             <li>Always-on mode starts at session start.</li>
@@ -1176,7 +1190,7 @@ const agentRoutes = {
     title: 'Cursor',
     copy: 'Use the skills profile for Cursor. Add per-repo rules with the installer when you want always-on behavior in a project.',
     command: 'npx skills add karurikwao/signaltrim -a cursor',
-    notes: ['Pairs well with `npx signaltrim --with-init` inside a repo.', 'Use the IDE skill manager to remove skills.'],
+    notes: ['Pairs well with `npx -y github:karurikwao/signaltrim -- --with-init` inside a repo.', 'Use the IDE skill manager to remove skills.'],
   },
   opencode: {
     tag: 'Native plugin',

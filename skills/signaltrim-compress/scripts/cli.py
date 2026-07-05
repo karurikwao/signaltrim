@@ -20,7 +20,7 @@ for _stream in (sys.stdout, sys.stderr):
 
 from pathlib import Path
 
-from .compress import backup_path_for, compress_file
+from .compress import assert_no_symlink_components, backup_path_for, compress_file
 from .detect import detect_file_type, should_compress
 
 
@@ -33,7 +33,7 @@ def main():
         print_usage()
         sys.exit(1)
 
-    filepath = Path(sys.argv[1])
+    filepath = Path(sys.argv[1]).expanduser()
 
     # Check file exists
     if not filepath.exists():
@@ -44,7 +44,11 @@ def main():
         print(f"ERROR: Not a file: {filepath}")
         sys.exit(1)
 
-    filepath = filepath.resolve()
+    try:
+        assert_no_symlink_components(filepath)
+    except Exception as e:
+        print(f"ERROR: {e}")
+        sys.exit(1)
 
     # Detect file type
     file_type = detect_file_type(filepath)

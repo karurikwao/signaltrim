@@ -221,8 +221,9 @@ function referencesManagedScript(command) {
 }
 
 // ── removeSignalTrimHooks ────────────────────────────────────────────────────
-// Strip every entry whose any hook command targets one of our managed hook
-// scripts (exact basename match, see above). Empties events. Tolerates
+// Strip every hook command that targets one of our managed hook scripts
+// (exact basename match, see above). Preserves foreign hooks even when a user
+// grouped them in the same event entry as a managed SignalTrim hook. Tolerates
 // malformed pre-existing settings (non-array hook lists, foreign shapes) —
 // those get dropped by validateHookFields first so we never call .length /
 // .filter on a non-array.
@@ -233,12 +234,15 @@ function removeSignalTrimHooks(settings) {
   let removed = 0;
   for (const ev of Object.keys(settings.hooks)) {
     if (!Array.isArray(settings.hooks[ev])) { delete settings.hooks[ev]; continue; }
-    const before = settings.hooks[ev].length;
-    settings.hooks[ev] = settings.hooks[ev].filter(entry => {
-      if (!entry || !Array.isArray(entry.hooks)) return true;
-      return !entry.hooks.some(h => h && typeof h.command === 'string' && referencesManagedScript(h.command));
-    });
-    removed += before - settings.hooks[ev].length;
+    settings.hooks[ev] = settings.hooks[ev]
+      .map(entry => {
+        if (!entry || !Array.isArray(entry.hooks)) return entry;
+        const before = entry.hooks.length;
+        const hooks = entry.hooks.filter(h => !(h && typeof h.command === 'string' && referencesManagedScript(h.command)));
+        removed += before - hooks.length;
+        return Object.assign({}, entry, { hooks });
+      })
+      .filter(entry => !(entry && Array.isArray(entry.hooks) && entry.hooks.length === 0));
     if (settings.hooks[ev].length === 0) delete settings.hooks[ev];
   }
   if (Object.keys(settings.hooks).length === 0) delete settings.hooks;

@@ -70,20 +70,108 @@ const fs = require('fs');
 const settingsPath = process.env.SIGNALTRIM_SETTINGS;
 const hooksDir = process.env.SIGNALTRIM_HOOKS_DIR;
 const managedStatusLinePath = hooksDir + '/signaltrim-statusline.ps1';
-const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
 
-const isSignalTrimEntry = (entry) =>
-  entry && entry.hooks && entry.hooks.some(h =>
-    h.command && h.command.includes('signaltrim')
-  );
+function stripTrailingCommas(src) {
+  let out = '';
+  let inString = false;
+  let stringChar = '';
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i];
+    if (inString) {
+      out += c;
+      if (c === '\\' && i + 1 < src.length) out += src[++i];
+      else if (c === stringChar) inString = false;
+      continue;
+    }
+    if (c === '"' || c === "'") { inString = true; stringChar = c; out += c; continue; }
+    if (c === ',') {
+      let j = i + 1;
+      while (j < src.length && /\s/.test(src[j])) j++;
+      if (src[j] === '}' || src[j] === ']') continue;
+    }
+    out += c;
+  }
+  return out;
+}
+
+function stripJsonComments(src) {
+  let out = '';
+  let inString = false;
+  let stringChar = '';
+  let inLine = false;
+  let inBlock = false;
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i];
+    const next = src[i + 1] || '';
+    if (inLine) { if (c === '\n') { inLine = false; out += c; } continue; }
+    if (inBlock) { if (c === '*' && next === '/') { inBlock = false; i++; } continue; }
+    if (inString) {
+      out += c;
+      if (c === '\\' && i + 1 < src.length) out += src[++i];
+      else if (c === stringChar) inString = false;
+      continue;
+    }
+    if (c === '"' || c === "'") { inString = true; stringChar = c; out += c; continue; }
+    if (c === '/' && next === '/') { inLine = true; i++; continue; }
+    if (c === '/' && next === '*') { inBlock = true; i++; continue; }
+    out += c;
+  }
+  return stripTrailingCommas(out);
+}
+
+function readSettings(p) {
+  const raw = fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : '{}';
+  if (!raw.trim()) return {};
+  try { return JSON.parse(raw); } catch (_) {}
+  return JSON.parse(stripJsonComments(raw));
+}
+
+const MANAGED_HOOK_BASENAMES = new Set([
+  'signaltrim-activate.js',
+  'signaltrim-mode-tracker.js',
+  'signaltrim-stats.js',
+  'signaltrim-statusline.sh',
+  'signaltrim-statusline.ps1',
+]);
+
+function tokenizeCommand(command) {
+  const out = [];
+  const re = /"([^"]*)"|'([^']*)'|(\S+)/g;
+  let m;
+  while ((m = re.exec(command || '')) !== null) out.push(m[1] ?? m[2] ?? m[3]);
+  return out;
+}
+
+function normalizeToken(tok) {
+  return String(tok || '').replace(/^file:\/\//i, '').replace(/\\/g, '/');
+}
+
+function basenameOf(tok) {
+  return normalizeToken(tok).split('/').pop();
+}
+
+function referencesManagedScript(command) {
+  for (const tok of tokenizeCommand(command)) {
+    if (MANAGED_HOOK_BASENAMES.has(basenameOf(tok))) return true;
+  }
+  return false;
+}
+
+const settings = readSettings(settingsPath);
 
 let removed = 0;
 if (settings.hooks) {
   for (const event of ['SessionStart', 'UserPromptSubmit']) {
     if (Array.isArray(settings.hooks[event])) {
-      const before = settings.hooks[event].length;
-      settings.hooks[event] = settings.hooks[event].filter(e => !isSignalTrimEntry(e));
-      removed += before - settings.hooks[event].length;
+      settings.hooks[event] = settings.hooks[event]
+        .map(e => {
+          if (!e || !Array.isArray(e.hooks)) return e;
+          const before = e.hooks.length;
+          const hooks = e.hooks.filter(h => !(h.command && referencesManagedScript(h.command)));
+          removed += before - hooks.length;
+          return { ...e, hooks };
+        })
+        .filter(e => !(e && Array.isArray(e.hooks) && e.hooks.length === 0));
       if (settings.hooks[event].length === 0) {
         delete settings.hooks[event];
       }
@@ -108,7 +196,16 @@ fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n');
 console.log('  Removed ' + removed + ' signaltrim hook entries from settings.json');
 '@
 
-        node -e $nodeScript
+        $tmpScript = Join-Path $env:TEMP "signaltrim-uninstall-$([System.Diagnostics.Process]::GetCurrentProcess().Id).js"
+        try {
+            [System.IO.File]::WriteAllText($tmpScript, $nodeScript, [System.Text.Encoding]::UTF8)
+            node $tmpScript
+            if ($LASTEXITCODE -ne 0) {
+                throw "Failed to remove SignalTrim hooks from $Settings"
+            }
+        } finally {
+            if (Test-Path $tmpScript) { Remove-Item $tmpScript -Force }
+        }
 
         # Clean up backup file left by installer
         if (Test-Path "$Settings.bak") {

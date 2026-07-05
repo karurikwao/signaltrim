@@ -9,6 +9,7 @@ sys.path.insert(0, str(REPO_ROOT / "skills" / "signaltrim-compress"))
 from scripts.validate import (  # noqa: E402
     ValidationResult,
     extract_inline_codes,
+    extract_table_shapes,
     validate,
     validate_inline_codes,
 )
@@ -101,6 +102,30 @@ class TestValidateIntegration(unittest.TestCase):
             result = validate(orig, comp)
             self.assertFalse(result.is_valid)
             self.assertTrue(any("Path mismatch" in e for e in result.errors))
+
+    def test_major_bullet_loss_is_invalid(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            orig = Path(tmp) / "original.md"
+            comp = Path(tmp) / "compressed.md"
+            orig.write_text("- One\n- Two\n- Three\n- Four\n")
+            comp.write_text("- One\n")
+            result = validate(orig, comp)
+            self.assertFalse(result.is_valid)
+            self.assertTrue(any("Bullet count dropped too much" in e for e in result.errors))
+
+    def test_table_structure_loss_is_invalid(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            orig = Path(tmp) / "original.md"
+            comp = Path(tmp) / "compressed.md"
+            orig.write_text("| A | B |\n| --- | --- |\n| 1 | 2 |\n| 3 | 4 |\n")
+            comp.write_text("| A | B |\n| --- | --- |\n| 1 | 2 |\n")
+            result = validate(orig, comp)
+            self.assertFalse(result.is_valid)
+            self.assertTrue(any("Table structure changed" in e for e in result.errors))
+
+    def test_table_extractor_ignores_fenced_tables(self):
+        text = "```\n| A | B |\n| --- | --- |\n| 1 | 2 |\n```\n\n| C | D |\n| --- | --- |\n| 3 | 4 |\n"
+        self.assertEqual(extract_table_shapes(text), [(2, 2, 2)])
 
 
 if __name__ == "__main__":

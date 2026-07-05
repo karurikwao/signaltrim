@@ -13,7 +13,8 @@
     "url": "https://github.com/karurikwao/signaltrim/issues"
   },
   "bin": {
-    "signaltrim": "./bin/install.js"
+    "signaltrim": "./bin/install.js",
+    "signaltrim-shrink": "./src/mcp-servers/signaltrim-shrink/index.js"
   },
   "engines": {
     "node": ">=18"
@@ -28,6 +29,13 @@
     "skills/",
     "plugins/",
     "commands/",
+    "benchmarks/",
+    "evals/",
+    "CLAUDE.md",
+    "CONTRIBUTING.md",
+    "INSTALL.md",
+    "SECURITY.md",
+    "docs/HONEST-NUMBERS.md",
     "docs/assets/signaltrim-demo.gif",
     "docs/assets/signaltrim-logo-banner.svg",
     "docs/assets/signaltrim-mark.svg",

@@ -36,14 +36,44 @@ def find_usable_bash():
     return None
 
 
+def find_usable_powershell():
+    candidates = ["pwsh", "powershell"]
+    if os.name == "nt":
+        candidates.extend(
+            [
+                r"C:\Program Files\PowerShell\7\pwsh.exe",
+                r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe",
+            ]
+        )
+    for candidate in candidates:
+        try:
+            subprocess.run(
+                [candidate, "-NoProfile", "-Command", "$PSVersionTable.PSVersion.ToString() | Out-Null"],
+                cwd=REPO_ROOT,
+                text=True,
+                capture_output=True,
+                check=True,
+                timeout=5,
+            )
+            return candidate
+        except (FileNotFoundError, subprocess.SubprocessError):
+            continue
+    return None
+
+
 class HookScriptTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls._bash_cmd = find_usable_bash()
+        cls._powershell_cmd = find_usable_powershell()
 
     def require_bash(self):
         if not self._bash_cmd:
             self.skipTest("bash cannot execute inside this repo")
+
+    def require_powershell(self):
+        if not self._powershell_cmd:
+            self.skipTest("PowerShell cannot execute inside this repo")
 
     def run_cmd(self, cmd, home, extra_env=None):
         env = os.environ.copy()
@@ -125,6 +155,71 @@ class HookScriptTests(unittest.TestCase):
             self.assertIn("statusLine", updated)
             self.assertIn((hooks_dir / "signaltrim-statusline.sh").as_posix(), updated["statusLine"]["command"])
 
+    def test_install_accepts_jsonc_settings(self):
+        self.require_bash()
+        with tempfile.TemporaryDirectory(prefix="signaltrim-hooks-jsonc-") as tmp:
+            home = Path(tmp)
+            claude_dir = home / ".claude"
+            claude_dir.mkdir(parents=True)
+            (claude_dir / "settings.json").write_text(
+                """{
+  // Claude settings often keep comments during manual edits.
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          { "type": "command", "command": "echo keep-me", },
+        ],
+      },
+    ],
+  },
+}
+"""
+            )
+
+            self.run_cmd([self._bash_cmd, "src/hooks/install.sh"], home)
+
+            updated = json.loads((claude_dir / "settings.json").read_text())
+            self.assertIn("Notification", updated["hooks"])
+            self.assertIn("SessionStart", updated["hooks"])
+            self.assertIn("UserPromptSubmit", updated["hooks"])
+            self.assertIn("statusLine", updated)
+
+    def test_install_preserves_user_signaltrim_named_hook(self):
+        self.require_bash()
+        with tempfile.TemporaryDirectory(prefix="signaltrim-hooks-preserve-") as tmp:
+            home = Path(tmp)
+            claude_dir = home / ".claude"
+            claude_dir.mkdir(parents=True)
+            user_hook = Path(tmp) / "user-signaltrim-helper.js"
+            user_hook.write_text("")
+            settings = {
+                "hooks": {
+                    "SessionStart": [
+                        {
+                            "hooks": [
+                                {
+                                    "type": "command",
+                                    "command": f'node "{user_hook}"',
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+            (claude_dir / "settings.json").write_text(json.dumps(settings, indent=2) + "\n")
+
+            self.run_cmd([self._bash_cmd, "src/hooks/install.sh"], home)
+
+            updated = json.loads((claude_dir / "settings.json").read_text())
+            commands = [
+                hook["command"]
+                for entry in updated["hooks"]["SessionStart"]
+                for hook in entry.get("hooks", [])
+            ]
+            self.assertTrue(any("user-signaltrim-helper.js" in cmd for cmd in commands))
+            self.assertTrue(any("signaltrim-activate.js" in cmd for cmd in commands))
+
     def test_uninstall_preserves_custom_statusline(self):
         self.require_bash()
         with tempfile.TemporaryDirectory(prefix="signaltrim-hooks-uninstall-") as tmp:
@@ -174,6 +269,116 @@ class HookScriptTests(unittest.TestCase):
                 "bash /tmp/custom-status-with-signaltrim.sh",
             )
             self.assertNotIn("hooks", updated)
+
+    def test_uninstall_preserves_user_signaltrim_named_hook(self):
+        self.require_bash()
+        with tempfile.TemporaryDirectory(prefix="signaltrim-hooks-uninstall-preserve-") as tmp:
+            home = Path(tmp)
+            claude_dir = home / ".claude"
+            hooks_dir = claude_dir / "hooks"
+            hooks_dir.mkdir(parents=True)
+
+            for name in ("signaltrim-activate.js", "signaltrim-mode-tracker.js", "signaltrim-statusline.sh"):
+                (hooks_dir / name).write_text("")
+
+            user_hook = Path(tmp) / "user-signaltrim-helper.js"
+            user_hook.write_text("")
+            settings = {
+                "hooks": {
+                    "SessionStart": [
+                        {
+                            "hooks": [
+                                {
+                                    "type": "command",
+                                    "command": f'node "{hooks_dir / "signaltrim-activate.js"}"',
+                                },
+                                {
+                                    "type": "command",
+                                    "command": f'node "{user_hook}"',
+                                },
+                            ]
+                        }
+                    ],
+                    "UserPromptSubmit": [
+                        {
+                            "hooks": [
+                                {
+                                    "type": "command",
+                                    "command": f'node "{hooks_dir / "signaltrim-mode-tracker.js"}"',
+                                }
+                            ]
+                        }
+                    ],
+                },
+            }
+            (claude_dir / "settings.json").write_text(json.dumps(settings, indent=2) + "\n")
+
+            self.run_cmd([self._bash_cmd, "src/hooks/uninstall.sh"], home)
+
+            updated = json.loads((claude_dir / "settings.json").read_text())
+            commands = [
+                hook["command"]
+                for entry in updated["hooks"]["SessionStart"]
+                for hook in entry.get("hooks", [])
+            ]
+            self.assertEqual(len(commands), 1)
+            self.assertIn("user-signaltrim-helper.js", commands[0])
+            self.assertNotIn("UserPromptSubmit", updated.get("hooks", {}))
+
+    def test_powershell_install_uninstall_accepts_jsonc_and_preserves_user_signaltrim_hook(self):
+        self.require_powershell()
+        with tempfile.TemporaryDirectory(prefix="signaltrim-hooks-ps-") as tmp:
+            home = Path(tmp)
+            claude_dir = home / ".claude"
+            claude_dir.mkdir(parents=True)
+            user_hook = Path(tmp) / "user-signaltrim-helper.js"
+            user_hook.write_text("")
+            command_json = json.dumps(f"node {user_hook}")
+            (claude_dir / "settings.json").write_text(
+                f"""{{
+  // User-authored hook should survive install and uninstall.
+  "hooks": {{
+    "SessionStart": [
+      {{
+        "hooks": [
+          {{ "type": "command", "command": {command_json}, }},
+        ],
+      }},
+    ],
+  }},
+}}
+"""
+            )
+
+            ps_cmd = [
+                self._powershell_cmd,
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+            ]
+            env = {"CLAUDE_CONFIG_DIR": str(claude_dir)}
+            self.run_cmd(ps_cmd + ["src/hooks/install.ps1"], home, env)
+
+            installed = json.loads((claude_dir / "settings.json").read_text())
+            install_commands = [
+                hook["command"]
+                for entry in installed["hooks"]["SessionStart"]
+                for hook in entry.get("hooks", [])
+            ]
+            self.assertTrue(any("user-signaltrim-helper.js" in cmd for cmd in install_commands))
+            self.assertTrue(any("signaltrim-activate.js" in cmd for cmd in install_commands))
+
+            self.run_cmd(ps_cmd + ["src/hooks/uninstall.ps1"], home, env)
+
+            uninstalled = json.loads((claude_dir / "settings.json").read_text())
+            remaining_commands = [
+                hook["command"]
+                for entry in uninstalled["hooks"]["SessionStart"]
+                for hook in entry.get("hooks", [])
+            ]
+            self.assertEqual(remaining_commands, [f"node {user_hook}"])
+            self.assertNotIn("UserPromptSubmit", uninstalled.get("hooks", {}))
 
     def test_activate_does_not_nudge_when_custom_statusline_exists(self):
         with tempfile.TemporaryDirectory(prefix="signaltrim-hooks-activate-") as tmp:

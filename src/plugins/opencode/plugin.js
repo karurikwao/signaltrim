@@ -29,9 +29,7 @@
 // Note: opencode does NOT support 'session.created' or 'tui.prompt.append'
 // as named plugin-hook keys. 'session.created' is an event *type* dispatched
 // through the single `event` handler; the old direct-key handlers were
-// silently ignored. See:
-// https://github.com/karurikwao/signaltrim/issues/418
-// https://github.com/karurikwao/signaltrim/issues/421
+// silently ignored. Preserved from the opencode hook-compatibility fix.
 
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';

@@ -83,7 +83,7 @@ signaltrim/
 | File | What it controls |
 |------|-----------------|
 | `skills/signaltrim/SKILL.md` | SignalTrim behavior: intensity levels, rules, wenyan mode, auto-clarity, persistence. Only file to edit for behavior changes. |
-| `src/rules/signaltrim-activate.md` | Always-on auto-activation rule body. Consumed by `src/tools/signaltrim-init.js` when a user runs `npx signaltrim --with-init` (per-repo IDE rule files). Edit here, not in any per-agent rule copy. |
+| `src/rules/signaltrim-activate.md` | Always-on auto-activation rule body. Consumed by `src/tools/signaltrim-init.js` when a user runs `npx -y github:karurikwao/signaltrim -- --with-init` (per-repo IDE rule files). Edit here, not in any per-agent rule copy. |
 | `src/rules/signaltrim-openclaw-bootstrap.md` | Marker-fenced bootstrap snippet appended to `~/.openclaw/workspace/SOUL.md` by `bin/lib/openclaw.js`. Drives always-on signaltrim through the OpenClaw gateway. Must include the SENTINEL `SignalTrim compact mode active` and stay well under OpenClaw's 12K-per-bootstrap-file cap. |
 | `bin/lib/openclaw.js` | OpenClaw install/uninstall helper. Frontmatter merge (`version`, `always: true`), SOUL.md marker append/strip, idempotent. Shared by `bin/install.js` and `src/tools/signaltrim-init.js`. |
 | `skills/signaltrim-commit/SKILL.md` | SignalTrim commit message behavior. Fully independent skill. |
@@ -99,7 +99,7 @@ signaltrim/
 
 ### Auto-generated / auto-synced — do not edit directly
 
-We removed the agent-specific dotdir mirrors at the repo root (`.cursor/`, `.windsurf/`, `.clinerules/`, `.github/copilot-instructions.md`, root `signaltrim/SKILL.md`). They were never read by the installer — only used to self-apply signaltrim to this repo when a maintainer opened it in Cursor/Windsurf/Cline. Devs who want signaltrim in their editor while editing this repo should run `npx signaltrim --with-init` once (writes per-repo rule files from `src/rules/signaltrim-activate.md` via `src/tools/signaltrim-init.js`). For per-user installs through the upstream skills CLI, `npx signaltrim --only <agent>` runs `npx skills add ... -a <profile>`.
+We removed the agent-specific dotdir mirrors at the repo root (`.cursor/`, `.windsurf/`, `.clinerules/`, `.github/copilot-instructions.md`, root `signaltrim/SKILL.md`). They were never read by the installer — only used to self-apply signaltrim to this repo when a maintainer opened it in Cursor/Windsurf/Cline. Devs who want signaltrim in their editor while editing this repo should run `npx -y github:karurikwao/signaltrim -- --with-init` once (writes per-repo rule files from `src/rules/signaltrim-activate.md` via `src/tools/signaltrim-init.js`). For per-user installs through the upstream skills CLI, `npx -y github:karurikwao/signaltrim -- --only <agent>` runs `npx skills add ... -a <profile>`.
 
 A handful of dotdir leftovers (`.junie/`, `.kiro/`, `.roo/`, `.agents/`) still hold a stale `signalteam/SKILL.md` mirror from before the cleanup. They aren't read by anything in the current install path; remove on sight, no migration needed.
 

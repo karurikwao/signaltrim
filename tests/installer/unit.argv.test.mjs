@@ -7,6 +7,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -15,6 +17,22 @@ const INSTALLER = path.resolve(HERE, '..', '..', 'bin', 'install.js');
 
 function run(...args) {
   return spawnSync('node', [INSTALLER, ...args], { encoding: 'utf8' });
+}
+
+function runWithEnv(env, ...args) {
+  return spawnSync('node', [INSTALLER, ...args], { encoding: 'utf8', env: { ...process.env, ...env } });
+}
+
+function fakeClaudeOnPath() {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cm-fake-claude-'));
+  if (process.platform === 'win32') {
+    fs.writeFileSync(path.join(dir, 'claude.cmd'), '@echo off\r\nexit /b 0\r\n');
+  } else {
+    const p = path.join(dir, 'claude');
+    fs.writeFileSync(p, '#!/bin/sh\nexit 0\n');
+    fs.chmodSync(p, 0o755);
+  }
+  return dir;
 }
 
 test('--help prints usage and exits 0', () => {
@@ -141,7 +159,7 @@ test('--with-mcp-shrink="<cmd>" registers wrapping that upstream', () => {
   // PATH (installMcpShrink probes `claude mcp --help` first). Assert the
   // wrapping content only when that line is actually present.
   if (/would run: claude mcp add signaltrim-shrink/.test(r.stdout)) {
-    assert.match(r.stdout, /claude mcp add signaltrim-shrink .* npx -y signaltrim-shrink npx @modelcontextprotocol\/server-filesystem \/tmp/);
+    assert.match(r.stdout, /claude mcp add signaltrim-shrink .* npx -y --package github:karurikwao\/signaltrim signaltrim-shrink npx @modelcontextprotocol\/server-filesystem \/tmp/);
   }
 });
 
@@ -155,6 +173,18 @@ test('--with-mcp-shrink "<cmd>" (space-separated) also accepted', () => {
   if (/would run: claude mcp add signaltrim-shrink/.test(r.stdout)) {
     assert.match(r.stdout, /signaltrim-shrink npx @modelcontextprotocol\/server-filesystem \/tmp/);
   }
+});
+
+test('--with-mcp-shrink preserves quoted upstream paths with spaces', () => {
+  const fakeDir = fakeClaudeOnPath();
+  const r = runWithEnv(
+    { PATH: `${fakeDir}${path.delimiter}${process.env.PATH || ''}` },
+    '--with-mcp-shrink="C:\\Program Files\\MCP Server\\server.exe" --stdio',
+    '--only', 'claude', '--dry-run', '--non-interactive',
+    '--config-dir', '/tmp/__cm_shrink_quoted_path'
+  );
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /npx -y --package github:karurikwao\/signaltrim signaltrim-shrink C:\\Program Files\\MCP Server\\server\.exe --stdio/);
 });
 
 test('--all does NOT auto-enable mcp-shrink (no sensible default upstream)', () => {

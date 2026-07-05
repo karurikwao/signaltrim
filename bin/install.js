@@ -35,7 +35,8 @@ const PINNED_REF = process.env.SIGNALTRIM_REF || 'main';
 const RAW_BASE = `https://raw.githubusercontent.com/${REPO}/${PINNED_REF}`;
 const HOOKS_REMOTE = `${RAW_BASE}/src/hooks`;
 const INIT_SCRIPT_URL = `${RAW_BASE}/src/tools/signaltrim-init.js`;
-const MCP_SHRINK_PKG = 'signaltrim-shrink';
+const MCP_SHRINK_BIN = 'signaltrim-shrink';
+const MCP_SHRINK_PACKAGE_SPEC = `github:${REPO}`;
 // Hook files to copy. Statusline ships in both .sh (macOS/Linux) and .ps1
 // (Windows) flavors — copy both regardless of host OS so a roaming
 // $CLAUDE_CONFIG_DIR (e.g. dotfiles repo) keeps working across platforms.
@@ -51,6 +52,54 @@ const HOOK_FILES = [
 ];
 
 // ── Argv ───────────────────────────────────────────────────────────────────
+function splitCommandValue(raw) {
+  const value = String(raw || '').trim();
+  if (!value) return [];
+
+  // Friendly Windows path handling for the common single-EXE form:
+  // --with-mcp-shrink=C:\Program Files\MCP Server\server.exe --stdio
+  // Shells pass the whole =value as one argv token, so preserve the path
+  // through the executable extension instead of splitting it at spaces.
+  if (!/['"]/.test(value)) {
+    const winExe = value.match(/^([A-Za-z]:[\\/].*?\.(?:exe|cmd|bat|ps1))(?:\s+(.*))?$/i);
+    if (winExe) return [winExe[1], ...splitCommandValue(winExe[2] || '')];
+  }
+
+  const out = [];
+  let cur = '';
+  let quote = null;
+  for (let i = 0; i < value.length; i++) {
+    const c = value[i];
+    if (quote) {
+      if (c === quote) {
+        quote = null;
+        continue;
+      }
+      if (c === '\\' && value[i + 1] === quote) {
+        cur += value[++i];
+        continue;
+      }
+      cur += c;
+      continue;
+    }
+    if (c === '"' || c === "'") {
+      quote = c;
+      continue;
+    }
+    if (/\s/.test(c)) {
+      if (cur) {
+        out.push(cur);
+        cur = '';
+      }
+      continue;
+    }
+    cur += c;
+  }
+  if (quote) die('error: --with-mcp-shrink has an unterminated quote');
+  if (cur) out.push(cur);
+  return out;
+}
+
 function parseArgs(argv) {
   const opts = {
     dryRun: false, force: false, skipSkills: false,
@@ -67,7 +116,7 @@ function parseArgs(argv) {
     // and a stub registration just lands the user in a broken-MCP loop (#474).
     if (a.startsWith('--with-mcp-shrink=')) {
       const raw = a.slice('--with-mcp-shrink='.length);
-      const tokens = raw.trim().split(/\s+/).filter(Boolean);
+      const tokens = splitCommandValue(raw);
       if (tokens.length === 0) {
         die('error: --with-mcp-shrink requires an upstream command\n' +
             '  example: --with-mcp-shrink="npx @modelcontextprotocol/server-filesystem /path"');
@@ -86,7 +135,7 @@ function parseArgs(argv) {
         const v = argv[i + 1];
         if (v && !v.startsWith('--')) {
           i++;
-          const tokens = v.trim().split(/\s+/).filter(Boolean);
+          const tokens = splitCommandValue(v);
           if (tokens.length === 0) {
             die('error: --with-mcp-shrink requires an upstream command\n' +
                 '  example: --with-mcp-shrink "npx @modelcontextprotocol/server-filesystem /path"');
@@ -431,6 +480,10 @@ function runSpawn(cmd, args, opts, dry) {
   return spawnXplat(cmd, args, Object.assign({ stdio: 'inherit' }, opts || {}));
 }
 
+function markInstall(results, id) {
+  results.installed.push(id);
+}
+
 // Create env with TMPDIR pointing to a temp dir inside configDir.
 // Workaround for Claude Code plugin install EXDEV bug: it tries to rename
 // from ~/.claude/plugins/cache/ to /tmp/ which fails when /tmp is on a
@@ -472,7 +525,7 @@ async function installClaude(ctx) {
 
   // Plugin install (idempotent unless --force)
   let alreadyInstalled = false;
-  if (!opts.force) {
+  if (!opts.dryRun && !opts.force) {
     const r = captureSpawn('claude', ['plugin', 'list']);
     if (r.status === 0 && /signaltrim/i.test(r.stdout || '')) alreadyInstalled = true;
   }
@@ -484,11 +537,11 @@ async function installClaude(ctx) {
   } else {
     // Use a temp dir on the same filesystem as configDir to avoid EXDEV errors
     // when Claude Code's plugin installer tries to rename across filesystems (#585).
-    const pluginEnv = sameFilesystemTmpEnv(configDir);
+    const pluginEnv = opts.dryRun ? process.env : sameFilesystemTmpEnv(configDir);
     const r1 = runSpawn('claude', ['plugin', 'marketplace', 'add', REPO], { env: pluginEnv }, opts.dryRun);
     const r2 = runSpawn('claude', ['plugin', 'install', 'signaltrim@signaltrim'], { env: pluginEnv }, opts.dryRun);
     if (spawnOk(r1) && spawnOk(r2)) {
-      results.installed.push('claude');
+      markInstall(results, 'claude');
       pluginInstallSucceeded = true;
     } else {
       if (r1.error || r2.error) {
@@ -636,7 +689,7 @@ function installHermes(ctx) {
   if (opts.dryRun) {
     note(`  would mkdir ${skillsRoot}/`);
     note(`  would copy ${HERMES_SKILL_DIRS.length} skill dirs into ${skillsRoot}/`);
-    results.installed.push('hermes');
+    markInstall(results, 'hermes');
     process.stdout.write('\n');
     return;
   }
@@ -728,7 +781,7 @@ function installOpencode(ctx) {
     note(`  would copy ${OPENCODE_SKILL_DIRS.length} skill dirs into ${skillsDir}/`);
     note(`  would patch ${opencodeJson} with "plugin" entry${opts.withMcpShrink ? ' + signaltrim-shrink MCP' : ''}`);
     note(`  would write Tier-3 ruleset to ${agentsMd}`);
-    results.installed.push('opencode');
+    markInstall(results, 'opencode');
     process.stdout.write('\n');
     return;
   }
@@ -877,7 +930,7 @@ function installOpencode(ctx) {
       if (!cfg.mcp['signaltrim-shrink']) {
         cfg.mcp['signaltrim-shrink'] = {
           type: 'local',
-          command: ['npx', '-y', MCP_SHRINK_PKG, ...opts.withMcpShrink],
+          command: ['npx', '-y', '--package', MCP_SHRINK_PACKAGE_SPEC, MCP_SHRINK_BIN, ...opts.withMcpShrink],
           enabled: true,
         };
         process.stdout.write(`  registered signaltrim-shrink MCP server (wraps: ${opts.withMcpShrink.join(' ')})\n`);
@@ -1046,13 +1099,6 @@ async function installHooks(ctx) {
 // ── MCP shrink wiring ─────────────────────────────────────────────────────
 function installMcpShrink(ctx) {
   const { note, warn, opts } = ctx;
-  // Probe npm first — registry outage = clean skip with manual snippet.
-  const probe = captureSpawn('npm', ['view', MCP_SHRINK_PKG, 'name']);
-  if (probe.status !== 0) {
-    warn(`    'npm view ${MCP_SHRINK_PKG}' returned no metadata — registry unreachable or package missing.`);
-    note('    Skipping registration. Re-run --with-mcp-shrink when the registry is reachable.');
-    return { kind: 'skip', why: 'npm registry probe failed' };
-  }
   // Detect modern `claude mcp add`
   const help = captureSpawn('claude', ['mcp', '--help']);
   if (help.status !== 0) {
@@ -1062,12 +1108,12 @@ function installMcpShrink(ctx) {
   }
   // opts.withMcpShrink is always an array of upstream-cmd tokens by the
   // time we get here; parseArgs rejects bare --with-mcp-shrink. The proxy
-  // gets `npx -y signaltrim-shrink <upstream tokens...>` so it has something
-  // to wrap.
+  // gets `npx -y --package github:karurikwao/signaltrim signaltrim-shrink
+  // <upstream tokens...>` so it works before a separate npm package exists.
   const upstream = opts.withMcpShrink;
   const r = runSpawn(
     'claude',
-    ['mcp', 'add', 'signaltrim-shrink', '--', 'npx', '-y', MCP_SHRINK_PKG, ...upstream],
+    ['mcp', 'add', 'signaltrim-shrink', '--', 'npx', '-y', '--package', MCP_SHRINK_PACKAGE_SPEC, MCP_SHRINK_BIN, ...upstream],
     null, opts.dryRun
   );
   if (spawnOk(r)) {
@@ -1404,8 +1450,9 @@ FLAGS
                         Claude Code (and opencode): register signaltrim-shrink MCP
                         proxy wrapping the given upstream. Default OFF.
                         signaltrim-shrink crashes without an upstream, so a value
-                        is required. The value is whitespace-tokenized.
+                        is required. Quotes are honored for paths with spaces.
                         Example: --with-mcp-shrink="npx @modelcontextprotocol/server-filesystem /tmp"
+                        Windows: --with-mcp-shrink="\"C:\\Program Files\\MCP Server\\server.exe\" --stdio"
   --no-mcp-shrink       Skip MCP shrink. (Default.)
   --uninstall, -u       Remove signaltrim from this machine.
   --config-dir <path>   Claude Code config dir for hook files + settings.json.
@@ -1516,7 +1563,7 @@ async function main() {
   process.stdout.write('\n');
   ctx.say('SignalTrim done');
   if (ctx.results.installed.length) {
-    ctx.ok('  installed:');
+    ctx.ok(opts.dryRun ? '  would install:' : '  installed:');
     for (const a of ctx.results.installed) process.stdout.write(`    • ${a}\n`);
   }
   if (ctx.results.skipped.length) {
@@ -1534,7 +1581,7 @@ async function main() {
   process.stdout.write('\n');
   ctx.note("  start any session and say 'signaltrim mode', or run /signaltrim in Claude Code");
   ctx.note('  measure what signaltrim save you: run /signaltrim-stats (numbers are estimates)');
-  ctx.note('  verified team savings coming soon — join waitlist: https://signaltrim.so');
+  ctx.note('  live demo + docs: https://signaltrim.pages.dev');
   ctx.note(`  uninstall: npx -y github:${REPO} -- --uninstall`);
 
   // Exit code: nonzero only if every detected agent failed

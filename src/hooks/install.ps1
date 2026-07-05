@@ -41,29 +41,124 @@ if (-not $Force) {
     $HooksWired = $false
     $HasStatusLine = $false
     if ($AllFilesPresent -and (Test-Path $Settings)) {
+        $env:SIGNALTRIM_SETTINGS = $Settings -replace '\\', '/'
+        $preflightScript = @'
+const fs = require('fs');
+
+function stripTrailingCommas(src) {
+  let out = '';
+  let inString = false;
+  let stringChar = '';
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i];
+    if (inString) {
+      out += c;
+      if (c === '\\' && i + 1 < src.length) out += src[++i];
+      else if (c === stringChar) inString = false;
+      continue;
+    }
+    if (c === '"' || c === "'") { inString = true; stringChar = c; out += c; continue; }
+    if (c === ',') {
+      let j = i + 1;
+      while (j < src.length && /\s/.test(src[j])) j++;
+      if (src[j] === '}' || src[j] === ']') continue;
+    }
+    out += c;
+  }
+  return out;
+}
+
+function stripJsonComments(src) {
+  let out = '';
+  let inString = false;
+  let stringChar = '';
+  let inLine = false;
+  let inBlock = false;
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i];
+    const next = src[i + 1] || '';
+    if (inLine) { if (c === '\n') { inLine = false; out += c; } continue; }
+    if (inBlock) { if (c === '*' && next === '/') { inBlock = false; i++; } continue; }
+    if (inString) {
+      out += c;
+      if (c === '\\' && i + 1 < src.length) out += src[++i];
+      else if (c === stringChar) inString = false;
+      continue;
+    }
+    if (c === '"' || c === "'") { inString = true; stringChar = c; out += c; continue; }
+    if (c === '/' && next === '/') { inLine = true; i++; continue; }
+    if (c === '/' && next === '*') { inBlock = true; i++; continue; }
+    out += c;
+  }
+  return stripTrailingCommas(out);
+}
+
+function readSettings(p) {
+  const raw = fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : '{}';
+  if (!raw.trim()) return {};
+  try { return JSON.parse(raw); } catch (_) {}
+  return JSON.parse(stripJsonComments(raw));
+}
+
+const MANAGED_HOOK_BASENAMES = new Set([
+  'signaltrim-activate.js',
+  'signaltrim-mode-tracker.js',
+  'signaltrim-stats.js',
+  'signaltrim-statusline.sh',
+  'signaltrim-statusline.ps1',
+]);
+
+function tokenizeCommand(command) {
+  const out = [];
+  const re = /"([^"]*)"|'([^']*)'|(\S+)/g;
+  let m;
+  while ((m = re.exec(command || '')) !== null) out.push(m[1] ?? m[2] ?? m[3]);
+  return out;
+}
+
+function normalizeToken(tok) {
+  return String(tok || '').replace(/^file:\/\//i, '').replace(/\\/g, '/');
+}
+
+function basenameOf(tok) {
+  return normalizeToken(tok).split('/').pop();
+}
+
+function referencesManagedScript(command) {
+  for (const tok of tokenizeCommand(command)) {
+    if (MANAGED_HOOK_BASENAMES.has(basenameOf(tok))) return true;
+  }
+  return false;
+}
+
+try {
+  const settings = readSettings(process.env.SIGNALTRIM_SETTINGS);
+  const hasSignalTrimHook = (event) =>
+    Array.isArray(settings.hooks?.[event]) &&
+    settings.hooks[event].some(e =>
+      e.hooks && e.hooks.some(h => h.command && referencesManagedScript(h.command))
+    );
+  process.exit(
+    hasSignalTrimHook('SessionStart') &&
+    hasSignalTrimHook('UserPromptSubmit') &&
+    !!settings.statusLine
+      ? 0
+      : 1
+  );
+} catch (_) {
+  process.exit(1);
+}
+'@
+        $tmpPreflight = Join-Path $env:TEMP "signaltrim-install-preflight-$([System.Diagnostics.Process]::GetCurrentProcess().Id).js"
         try {
-            $settingsObj = Get-Content $Settings -Raw | ConvertFrom-Json
-            $hasSignalTrimHook = {
-                param([string]$eventName)
-                if (-not $settingsObj.hooks) { return $false }
-                $entries = $settingsObj.hooks.$eventName
-                if (-not $entries) { return $false }
-                foreach ($entry in $entries) {
-                    if ($entry.hooks) {
-                        foreach ($hookDef in $entry.hooks) {
-                            if ($hookDef.command -and $hookDef.command.Contains("signaltrim")) {
-                                return $true
-                            }
-                        }
-                    }
-                }
-                return $false
+            [System.IO.File]::WriteAllText($tmpPreflight, $preflightScript, [System.Text.Encoding]::UTF8)
+            node $tmpPreflight | Out-Null
+            if ($LASTEXITCODE -eq 0) {
+                $HooksWired = $true
+                $HasStatusLine = $true
             }
-            $HooksWired = (& $hasSignalTrimHook "SessionStart") -and (& $hasSignalTrimHook "UserPromptSubmit")
-            $HasStatusLine = $null -ne $settingsObj.statusLine
-        } catch {
-            $HooksWired = $false
-            $HasStatusLine = $false
+        } finally {
+            if (Test-Path $tmpPreflight) { Remove-Item $tmpPreflight -Force }
         }
     }
 
@@ -122,13 +217,100 @@ const fs = require('fs');
 const settingsPath = process.env.SIGNALTRIM_SETTINGS;
 const hooksDir = process.env.SIGNALTRIM_HOOKS_DIR;
 const managedStatusLinePath = hooksDir + '/signaltrim-statusline.ps1';
-const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+
+function stripTrailingCommas(src) {
+  let out = '';
+  let inString = false;
+  let stringChar = '';
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i];
+    if (inString) {
+      out += c;
+      if (c === '\\' && i + 1 < src.length) out += src[++i];
+      else if (c === stringChar) inString = false;
+      continue;
+    }
+    if (c === '"' || c === "'") { inString = true; stringChar = c; out += c; continue; }
+    if (c === ',') {
+      let j = i + 1;
+      while (j < src.length && /\s/.test(src[j])) j++;
+      if (src[j] === '}' || src[j] === ']') continue;
+    }
+    out += c;
+  }
+  return out;
+}
+
+function stripJsonComments(src) {
+  let out = '';
+  let inString = false;
+  let stringChar = '';
+  let inLine = false;
+  let inBlock = false;
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i];
+    const next = src[i + 1] || '';
+    if (inLine) { if (c === '\n') { inLine = false; out += c; } continue; }
+    if (inBlock) { if (c === '*' && next === '/') { inBlock = false; i++; } continue; }
+    if (inString) {
+      out += c;
+      if (c === '\\' && i + 1 < src.length) out += src[++i];
+      else if (c === stringChar) inString = false;
+      continue;
+    }
+    if (c === '"' || c === "'") { inString = true; stringChar = c; out += c; continue; }
+    if (c === '/' && next === '/') { inLine = true; i++; continue; }
+    if (c === '/' && next === '*') { inBlock = true; i++; continue; }
+    out += c;
+  }
+  return stripTrailingCommas(out);
+}
+
+function readSettings(p) {
+  const raw = fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : '{}';
+  if (!raw.trim()) return {};
+  try { return JSON.parse(raw); } catch (_) {}
+  return JSON.parse(stripJsonComments(raw));
+}
+
+const MANAGED_HOOK_BASENAMES = new Set([
+  'signaltrim-activate.js',
+  'signaltrim-mode-tracker.js',
+  'signaltrim-stats.js',
+  'signaltrim-statusline.sh',
+  'signaltrim-statusline.ps1',
+]);
+
+function tokenizeCommand(command) {
+  const out = [];
+  const re = /"([^"]*)"|'([^']*)'|(\S+)/g;
+  let m;
+  while ((m = re.exec(command || '')) !== null) out.push(m[1] ?? m[2] ?? m[3]);
+  return out;
+}
+
+function normalizeToken(tok) {
+  return String(tok || '').replace(/^file:\/\//i, '').replace(/\\/g, '/');
+}
+
+function basenameOf(tok) {
+  return normalizeToken(tok).split('/').pop();
+}
+
+function referencesManagedScript(command) {
+  for (const tok of tokenizeCommand(command)) {
+    if (MANAGED_HOOK_BASENAMES.has(basenameOf(tok))) return true;
+  }
+  return false;
+}
+
+const settings = readSettings(settingsPath);
 if (!settings.hooks) settings.hooks = {};
 
 // SessionStart
 if (!settings.hooks.SessionStart) settings.hooks.SessionStart = [];
 const hasStart = settings.hooks.SessionStart.some(e =>
-  e.hooks && e.hooks.some(h => h.command && h.command.includes('signaltrim'))
+  e.hooks && e.hooks.some(h => h.command && referencesManagedScript(h.command))
 );
 if (!hasStart) {
   settings.hooks.SessionStart.push({
@@ -144,7 +326,7 @@ if (!hasStart) {
 // UserPromptSubmit
 if (!settings.hooks.UserPromptSubmit) settings.hooks.UserPromptSubmit = [];
 const hasPrompt = settings.hooks.UserPromptSubmit.some(e =>
-  e.hooks && e.hooks.some(h => h.command && h.command.includes('signaltrim'))
+  e.hooks && e.hooks.some(h => h.command && referencesManagedScript(h.command))
 );
 if (!hasPrompt) {
   settings.hooks.UserPromptSubmit.push({
@@ -184,6 +366,9 @@ $tmpScript = Join-Path $env:TEMP "signaltrim-install-$([System.Diagnostics.Proce
 try {
     [System.IO.File]::WriteAllText($tmpScript, $nodeScript, [System.Text.Encoding]::UTF8)
     node $tmpScript
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to merge SignalTrim hooks into $Settings"
+    }
 } finally {
     if (Test-Path $tmpScript) { Remove-Item $tmpScript -Force }
 }
