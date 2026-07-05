@@ -4,7 +4,7 @@ This page gets SignalTrim installed and verified quickly.
 
 ## Requirements
 
-- Node.js 18 or newer.
+- Node.js 20.19 or newer.
 - GitHub access for install-from-repo paths.
 - The target agent installed if you want auto-detection.
 - PowerShell 5.1+ on Windows.
@@ -133,4 +133,3 @@ npx -y github:karurikwao/signaltrim -- --uninstall
 ```
 
 The uninstaller removes SignalTrim-managed files and settings entries. It preserves user-authored hooks that merely mention `signaltrim` in a path or filename.
-

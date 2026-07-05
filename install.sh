@@ -19,17 +19,19 @@ set -euo pipefail
 
 REPO="karurikwao/signaltrim"
 
-# Require Node ≥18. nvm is a common path; print a hint if missing.
+# Require Node 20.19+. nvm is a common path; print a hint if missing.
 if ! command -v node >/dev/null 2>&1; then
-  echo "signaltrim: Node.js (≥18) required. Install:" >&2
+  echo "signaltrim: Node.js 20.19+ required. Install:" >&2
   echo "  macOS:  brew install node" >&2
   echo "  Linux:  see https://nodejs.org or use nvm (https://github.com/nvm-sh/nvm)" >&2
   exit 1
 fi
 
+NODE_VERSION=$(node -p "process.versions.node")
 NODE_MAJOR=$(node -p "process.versions.node.split('.')[0]")
-if [ "$NODE_MAJOR" -lt 18 ]; then
-  echo "signaltrim: Node $NODE_MAJOR too old. Need Node ≥18." >&2
+NODE_MINOR=$(node -p "process.versions.node.split('.')[1]")
+if [ "$NODE_MAJOR" -lt 20 ] || { [ "$NODE_MAJOR" -eq 20 ] && [ "$NODE_MINOR" -lt 19 ]; }; then
+  echo "signaltrim: Node $NODE_VERSION too old. Need Node 20.19+." >&2
   echo "  Upgrade: https://nodejs.org" >&2
   exit 1
 fi
@@ -47,7 +49,7 @@ fi
 # already forwards trailing args to the package, and a literal `--` tripped
 # bin/install.js's parseArgs as an unknown flag.
 if ! command -v npx >/dev/null 2>&1; then
-  echo "signaltrim: npx required (ships with Node ≥18). Reinstall Node.js." >&2
+  echo "signaltrim: npx required (ships with Node 20.19+). Reinstall Node.js." >&2
   exit 1
 fi
 

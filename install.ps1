@@ -29,20 +29,23 @@ function Install-SignalTrim {
   $ErrorActionPreference = "Stop"
   $Repo = "karurikwao/signaltrim"
 
-  # Require Node ≥18.
+  # Require Node 20.19+.
   $node = Get-Command node -ErrorAction SilentlyContinue
   if (-not $node) {
     Write-Error @"
-signaltrim: Node.js (>=18) required. Install:
+signaltrim: Node.js 20.19+ required. Install:
   - winget install OpenJS.NodeJS.LTS
   - or download from https://nodejs.org
 "@
     exit 1
   }
 
-  $nodeMajor = [int](& node -p "process.versions.node.split('.')[0]")
-  if ($nodeMajor -lt 18) {
-    Write-Error "signaltrim: Node $nodeMajor too old. Need Node >=18. Upgrade: https://nodejs.org"
+  $nodeVersion = & node -p "process.versions.node"
+  $nodeParts = $nodeVersion.Split(".")
+  $nodeMajor = [int]$nodeParts[0]
+  $nodeMinor = [int]$nodeParts[1]
+  if (($nodeMajor -lt 20) -or (($nodeMajor -eq 20) -and ($nodeMinor -lt 19))) {
+    Write-Error "signaltrim: Node $nodeVersion too old. Need Node 20.19+. Upgrade: https://nodejs.org"
     exit 1
   }
 
@@ -62,7 +65,7 @@ signaltrim: Node.js (>=18) required. Install:
   # Curl-pipe path: delegate to npx.
   $npx = Get-Command npx -ErrorAction SilentlyContinue
   if (-not $npx) {
-    Write-Error "signaltrim: npx required (ships with Node >=18). Reinstall Node.js."
+    Write-Error "signaltrim: npx required (ships with Node 20.19+). Reinstall Node.js."
     exit 1
   }
 

@@ -231,8 +231,10 @@ function checkWslWindowsNode() {
 }
 
 function checkNodeVersion() {
-  const major = parseInt(process.versions.node.split('.')[0], 10);
-  if (major < 18) die(`signaltrim: Node ${process.versions.node} too old. Need Node ≥18. https://nodejs.org`);
+  const [major, minor] = process.versions.node.split('.').map((part) => parseInt(part, 10));
+  if (major < 20 || (major === 20 && minor < 19)) {
+    die(`signaltrim: Node ${process.versions.node} too old. Need Node 20.19+. https://nodejs.org`);
+  }
 }
 
 // ── Provider matrix ────────────────────────────────────────────────────────

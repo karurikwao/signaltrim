@@ -1,6 +1,6 @@
 {
   "name": "signaltrim",
-  "version": "0.1.0",
+  "version": "0.6.4",
   "description": "SignalTrim installer detects AI coding agents and installs compact technical reply mode for each one.",
   "license": "MIT",
   "author": "SignalTrim contributors",
@@ -17,7 +17,7 @@
     "signaltrim-shrink": "./src/mcp-servers/signaltrim-shrink/index.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.19"
   },
   "scripts": {
     "test": "node --test tests/installer/*.test.mjs"

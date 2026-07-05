@@ -19,6 +19,13 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/karurikwao/signaltrim/actions/workflows/ci.yml"><img src="https://github.com/karurikwao/signaltrim/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
+  <a href="./package.json"><img src="https://img.shields.io/badge/npm-v0.6.4-20a7d8?style=flat" alt="npm v0.6.4"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-dc64d8?style=flat" alt="License MIT"></a>
+  <a href="./package.json"><img src="https://img.shields.io/badge/node-20.19%2B-12d8d1?style=flat" alt="Node 20.19+"></a>
+</p>
+
+<p align="center">
   <img src="docs/assets/signaltrim-demo.gif" alt="SignalTrim demo showing verbose agent output compressed into shorter technical output" width="720">
 </p>
 
@@ -101,7 +108,7 @@ curl -fsSL https://raw.githubusercontent.com/karurikwao/signaltrim/main/install.
 irm https://raw.githubusercontent.com/karurikwao/signaltrim/main/install.ps1 | iex
 ```
 
-Needs Node 18+. Safe to re-run. Use `--dry-run` when you want to preview the writes first.
+Needs Node 20.19+. Safe to re-run. Use `--dry-run` when you want to preview the writes first.
 
 > [!TIP]
 > Activate with `/signaltrim` or "use SignalTrim mode". Deactivate with "normal mode". Claude Code plugin installs can auto-activate at session start; static skill/rule installs may need the first command.
