@@ -14,7 +14,8 @@
 <p align="center">
   <a href="https://signaltrim.pages.dev/#proof">Live demo</a> |
   <a href="https://signaltrim.pages.dev/">Launch page</a> |
-  <a href="https://github.com/karurikwao/signaltrim">GitHub repo</a>
+  <a href="https://github.com/karurikwao/signaltrim">GitHub repo</a> |
+  <a href="docs/wiki/Home.md">Wiki</a>
 </p>
 
 <p align="center">
@@ -34,7 +35,8 @@
   <a href="#modes">Modes</a> ·
   <a href="#what-ships">What ships</a> ·
   <a href="#proof">Proof</a> ·
-  <a href="#privacy">Privacy</a>
+  <a href="#privacy">Privacy</a> ·
+  <a href="docs/wiki/Home.md">Wiki</a>
 </p>
 
 ---
@@ -122,6 +124,7 @@ npx -y github:karurikwao/signaltrim -- --only opencode
 ```
 
 The full per-agent matrix, flags, dry-run mode, and uninstall path live in [INSTALL.md](./INSTALL.md).
+For the full repo guide, see the [SignalTrim wiki](./docs/wiki/Home.md).
 
 </details>
 
@@ -224,6 +227,7 @@ SignalTrim earns stars by being useful on day one: install works, docs are hones
 <sub>
 <strong>Docs:</strong>
 <a href="./INSTALL.md">Install matrix</a> ·
+<a href="./docs/wiki/Home.md">Wiki</a> ·
 <a href="./docs/HONEST-NUMBERS.md">Honest numbers</a> ·
 <a href="./CONTRIBUTING.md">Contributing</a> ·
 <a href="./CLAUDE.md">Maintainer guide</a> ·
