@@ -28,8 +28,13 @@
     "skills/",
     "plugins/",
     "commands/",
+    "docs/assets/signaltrim-demo.gif",
+    "docs/assets/signaltrim-logo-banner.svg",
+    "docs/assets/signaltrim-mark.svg",
     "dist/signaltrim.skill",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "!**/__pycache__/**",
+    "!**/*.pyc"
   ]
 }
