@@ -21,6 +21,7 @@ if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
 $ClaudeDir = if ($env:CLAUDE_CONFIG_DIR) { $env:CLAUDE_CONFIG_DIR } else { Join-Path $env:USERPROFILE ".claude" }
 $HooksDir = Join-Path $ClaudeDir "hooks"
 $Settings = Join-Path $ClaudeDir "settings.json"
+$TempRoot = if ($env:TEMP) { $env:TEMP } elseif ($env:TMPDIR) { $env:TMPDIR } else { [System.IO.Path]::GetTempPath() }
 $HookFiles = @("package.json", "signaltrim-config.js", "signaltrim-activate.js", "signaltrim-mode-tracker.js", "signaltrim-stats.js", "signaltrim-statusline.sh", "signaltrim-statusline.ps1", "signalteam-model-overrides.js")
 
 # Resolve source — works from repo clone or remote
@@ -149,7 +150,7 @@ try {
   process.exit(1);
 }
 '@
-        $tmpPreflight = Join-Path $env:TEMP "signaltrim-install-preflight-$([System.Diagnostics.Process]::GetCurrentProcess().Id).js"
+        $tmpPreflight = Join-Path $TempRoot "signaltrim-install-preflight-$([System.Diagnostics.Process]::GetCurrentProcess().Id).js"
         try {
             [System.IO.File]::WriteAllText($tmpPreflight, $preflightScript, [System.Text.Encoding]::UTF8)
             node $tmpPreflight | Out-Null
@@ -362,7 +363,7 @@ fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n');
 console.log('  Hooks wired in settings.json');
 '@
 
-$tmpScript = Join-Path $env:TEMP "signaltrim-install-$([System.Diagnostics.Process]::GetCurrentProcess().Id).js"
+$tmpScript = Join-Path $TempRoot "signaltrim-install-$([System.Diagnostics.Process]::GetCurrentProcess().Id).js"
 try {
     [System.IO.File]::WriteAllText($tmpScript, $nodeScript, [System.Text.Encoding]::UTF8)
     node $tmpScript
