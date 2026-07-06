@@ -29,6 +29,10 @@ jobs:
         id: smoke
         run: npm run smoke
 
+      - name: Run standalone JS tests
+        id: standalone_js
+        run: npm run test:standalone
+
       - name: Run install-surface checks
         id: install_surfaces
         run: npm run check:install-surfaces
@@ -55,6 +59,7 @@ jobs:
             echo
             echo "- Status: ${{ job.status }}"
             echo "- Smoke tests: ${{ steps.smoke.outcome }}"
+            echo "- Standalone JS tests: ${{ steps.standalone_js.outcome }}"
             echo "- Install-surface checks: ${{ steps.install_surfaces.outcome }}"
             echo "- Repository verification: ${{ steps.repo_verify.outcome }}"
             echo "- README command snippets: ${{ steps.readme_snippets.outcome }}"

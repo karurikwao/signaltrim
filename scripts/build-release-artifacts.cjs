@@ -2,12 +2,13 @@
 'use strict';
 
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const child_process = require('child_process');
 
 const ROOT = path.resolve(__dirname, '..');
 const DIST = path.join(ROOT, 'dist', 'release');
-const BUNDLE_ROOT = path.join(DIST, 'bundles');
+const BUNDLE_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), 'signaltrim-release-bundles-'));
 const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
 const targets = ['windows-x64', 'macos-x64', 'linux-x64'];
 
@@ -36,8 +37,8 @@ function archive(bundleName) {
   }
 }
 
-function extractPackage(bundleName) {
-  const result = child_process.spawnSync('tar', ['-xzf', path.join(DIST, tarball)], {
+function extractPackage(bundleName, tarballName) {
+  const result = child_process.spawnSync('tar', ['-xzf', path.join(DIST, tarballName)], {
     cwd: path.join(BUNDLE_ROOT, bundleName),
     encoding: 'utf8',
   });
@@ -47,58 +48,60 @@ function extractPackage(bundleName) {
 }
 
 fs.mkdirSync(DIST, { recursive: true });
-fs.rmSync(BUNDLE_ROOT, { recursive: true, force: true });
-fs.mkdirSync(BUNDLE_ROOT, { recursive: true });
 
-const tarball = fs.readdirSync(DIST).find((name) => name === `signaltrim-${pkg.version}.tgz`);
-if (!tarball) {
-  throw new Error(`Run npm pack first; expected dist/release/signaltrim-${pkg.version}.tgz`);
-}
-
-for (const target of targets) {
-  const bundle = `signaltrim-${pkg.version}-${target}`;
-  copy(tarball, path.join(bundle, tarball));
-  extractPackage(bundle);
-  write(path.join(bundle, 'README.txt'), [
-    `SignalTrim ${pkg.version} ${target}`,
-    '',
-    'This bundle is a platform launch pack for the SignalTrim Node CLI.',
-    'It includes the npm package tarball plus shell wrappers for the target OS.',
-    'Node.js 20.19+ is still required; SignalTrim does not ship a hosted backend.',
-    '',
-    'Install from the package tarball:',
-    `  npm install -g ./${tarball}`,
-    '',
-    'Or run from a cloned repo:',
-    '  npm run smoke',
-    '  node bin/install.js --help',
-    '',
-  ].join('\n'));
-
-  if (target === 'windows-x64') {
-    write(path.join(bundle, 'signaltrim.cmd'), [
-      '@echo off',
-      'setlocal',
-      'node "%~dp0package\\bin\\install.js" %*',
-      '',
-    ].join('\r\n'));
-    write(path.join(bundle, 'signaltrim.ps1'), [
-      '$ErrorActionPreference = "Stop"',
-      '$Root = Split-Path -Parent $MyInvocation.MyCommand.Path',
-      'node (Join-Path $Root "package\\bin\\install.js") @args',
-      '',
-    ].join('\r\n'));
-  } else {
-    write(path.join(bundle, 'signaltrim'), [
-      '#!/usr/bin/env sh',
-      'set -eu',
-      'DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)',
-      'node "$DIR/package/bin/install.js" "$@"',
-      '',
-    ].join('\n'), 0o755);
+try {
+  const tarball = fs.readdirSync(DIST).find((name) => name === `signaltrim-${pkg.version}.tgz`);
+  if (!tarball) {
+    throw new Error(`Run npm pack first; expected dist/release/signaltrim-${pkg.version}.tgz`);
   }
 
-  archive(bundle);
-}
+  for (const target of targets) {
+    const bundle = `signaltrim-${pkg.version}-${target}`;
+    copy(tarball, path.join(bundle, tarball));
+    extractPackage(bundle, tarball);
+    write(path.join(bundle, 'README.txt'), [
+      `SignalTrim ${pkg.version} ${target}`,
+      '',
+      'This bundle is a platform launch pack for the SignalTrim Node CLI.',
+      'It includes the npm package tarball plus shell wrappers for the target OS.',
+      'Node.js 20.19+ is still required; SignalTrim does not ship a hosted backend.',
+      '',
+      'Install from the package tarball:',
+      `  npm install -g ./${tarball}`,
+      '',
+      'Or run from a cloned repo:',
+      '  npm run smoke',
+      '  node bin/install.js --help',
+      '',
+    ].join('\n'));
 
-console.log(`Built ${targets.length} platform release bundles in ${DIST}`);
+    if (target === 'windows-x64') {
+      write(path.join(bundle, 'signaltrim.cmd'), [
+        '@echo off',
+        'setlocal',
+        'node "%~dp0package\\bin\\install.js" %*',
+        '',
+      ].join('\r\n'));
+      write(path.join(bundle, 'signaltrim.ps1'), [
+        '$ErrorActionPreference = "Stop"',
+        '$Root = Split-Path -Parent $MyInvocation.MyCommand.Path',
+        'node (Join-Path $Root "package\\bin\\install.js") @args',
+        '',
+      ].join('\r\n'));
+    } else {
+      write(path.join(bundle, 'signaltrim'), [
+        '#!/usr/bin/env sh',
+        'set -eu',
+        'DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)',
+        'node "$DIR/package/bin/install.js" "$@"',
+        '',
+      ].join('\n'), 0o755);
+    }
+
+    archive(bundle);
+  }
+
+  console.log(`Built ${targets.length} platform release bundles in ${DIST}`);
+} finally {
+  fs.rmSync(BUNDLE_ROOT, { recursive: true, force: true });
+}

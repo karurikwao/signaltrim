@@ -21,8 +21,8 @@ python tests/verify_repo.py
 python -m unittest discover -s tests -p "test_*.py"
 npm test
 npm run smoke
+npm run test:standalone
 npm run check:install-surfaces
-node tests/test_mcp_shrink.js
 npm pack --dry-run --json
 ```
 
@@ -44,6 +44,7 @@ The package should include:
 - `benchmarks/`
 - `evals/`
 - `docs/`
+- `CHANGELOG.md`
 
 It should not include:
 
@@ -142,6 +143,8 @@ The automated release workflow is:
 ```
 
 It builds the npm tarball, source archives, checksums, and platform launch bundles for Windows, macOS, and Linux.
+Tag releases as `v<package.json version>` exactly. The workflow fails before publishing if the tag and package version diverge.
+Keep `CHANGELOG.md` updated before pushing the tag; first-release notes should summarize the install surface, proof features, docs/wiki state, and known registry status.
 
 The recurring verification workflow is:
 

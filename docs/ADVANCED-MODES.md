@@ -56,7 +56,7 @@ Summarize implementation state for the next maintainer.
 Good output shape:
 
 ```text
-Implemented CI badge and smoke workflow. Local tests pass. Latest CI run is green. Remaining risk: npm badge is static until package is published.
+Implemented CI badge and smoke workflow. Local tests pass. Latest CI run is green. Remaining risk: publish the first GitHub release before advertising package registries.
 ```
 
 ## Failure Modes

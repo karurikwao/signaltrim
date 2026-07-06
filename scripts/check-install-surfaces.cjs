@@ -57,14 +57,19 @@ function runOptional(label, cmd, args) {
 }
 
 const pkg = JSON.parse(read('package.json'));
-if (pkg.version !== '0.6.4') failures.push(`package.json version is ${pkg.version}, expected 0.6.4`);
+if (!/^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/.test(pkg.version)) {
+  failures.push(`package.json version is not semver-like: ${pkg.version}`);
+}
 if (pkg.engines?.node !== '>=20.19') failures.push(`package.json engines.node is ${pkg.engines?.node}, expected >=20.19`);
 if (!fs.existsSync(path.join(ROOT, pkg.bin.signaltrim))) failures.push('package.json bin.signaltrim target missing');
 if (!fs.existsSync(path.join(ROOT, pkg.bin['signaltrim-shrink']))) failures.push('package.json bin.signaltrim-shrink target missing');
+if (!Array.isArray(pkg.files) || !pkg.files.includes('CHANGELOG.md')) failures.push('package.json files missing CHANGELOG.md');
 
-requireText('README.md', 'npm-v0.6.4');
+requireText('README.md', `github-v${pkg.version}`);
+requireText('README.md', `alt="GitHub package v${pkg.version}"`);
 requireText('README.md', 'node-20.19%2B');
 requireText('README.md', 'npm run smoke');
+requireText('CHANGELOG.md', `## [${pkg.version}]`);
 requireText('docs/INSTALL-SHELLS.md', 'PowerShell');
 requireText('docs/INSTALL-SHELLS.md', 'Bash');
 requireText('docs/INSTALL-SHELLS.md', 'Zsh');

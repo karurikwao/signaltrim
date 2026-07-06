@@ -22,6 +22,7 @@
   "scripts": {
     "test": "node --test tests/installer/*.test.mjs",
     "smoke": "node --test tests/smoke/*.test.mjs",
+    "test:standalone": "node scripts/run-standalone-js-tests.cjs",
     "test:python": "python -m unittest discover -s tests -p \"test_*.py\"",
     "verify": "python tests/verify_repo.py",
     "check:install-surfaces": "node scripts/check-install-surfaces.cjs",
@@ -37,6 +38,7 @@
     "benchmarks/",
     "evals/",
     "CLAUDE.md",
+    "CHANGELOG.md",
     "CONTRIBUTING.md",
     "INSTALL.md",
     "SECURITY.md",

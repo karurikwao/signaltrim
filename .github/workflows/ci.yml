@@ -31,6 +31,9 @@ jobs:
       - name: Run CLI smoke tests
         run: npm run smoke
 
+      - name: Run standalone JS tests
+        run: npm run test:standalone
+
       - name: Check install surfaces
         run: npm run check:install-surfaces
 

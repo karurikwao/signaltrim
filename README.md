@@ -20,7 +20,7 @@
 
 <p align="center">
   <a href="https://github.com/karurikwao/signaltrim/actions/workflows/ci.yml"><img src="https://github.com/karurikwao/signaltrim/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
-  <a href="./package.json"><img src="https://img.shields.io/badge/npm-v0.6.4-20a7d8?style=flat" alt="npm v0.6.4"></a>
+  <a href="./package.json"><img src="https://img.shields.io/badge/github-v0.6.4-20a7d8?style=flat" alt="GitHub package v0.6.4"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-dc64d8?style=flat" alt="License MIT"></a>
   <a href="./package.json"><img src="https://img.shields.io/badge/node-20.19%2B-12d8d1?style=flat" alt="Node 20.19+"></a>
 </p>
@@ -136,7 +136,7 @@ npx -y github:karurikwao/signaltrim -- --only opencode
 ```
 
 The full per-agent matrix, flags, dry-run mode, and uninstall path live in [INSTALL.md](./INSTALL.md).
-For the full repo guide, see the [SignalTrim Wiki](https://github.com/karurikwao/signaltrim/wiki). It covers getting started, the install matrix, modes, agent integrations, Claude Code hooks, MCP Shrink, benchmarks/evals, security/privacy, troubleshooting, and development/release notes.
+For the full repo guide, see the [SignalTrim Wiki](https://github.com/karurikwao/signaltrim/wiki). It covers getting started, the install matrix, modes, agent integrations, Claude Code hooks, MCP Shrink, benchmarks/evals, security/privacy, troubleshooting, and development/release notes. Release history lives in [CHANGELOG.md](./CHANGELOG.md).
 
 The wiki source mirror lives in [`docs/wiki/`](./docs/wiki/Home.md) so documentation changes can be reviewed with normal code changes before publishing to the Wiki tab.
 
